@@ -1,0 +1,14 @@
+[include]
+    path = ~/.gitconfig.user
+
+[core]
+	excludesfile = ~/dotfiles/gitignore.global
+
+[color]
+	ui = true
+
+[includeIf "gitdir:~/Work"]
+	path = ~/Work/.gitconfig
+
+[init]
+	defaultBranch = main
