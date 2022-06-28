@@ -17,3 +17,6 @@ export DOCKER_BUILDKIT=1
 export FZF_BASE=/opt/homebrew/opt/fzf
 export FZF_DEFAULT_OPTS='--height 40%'
 export DEVELOPMENT_TOOLS_PATH=$HOME/Development/tools
+
+export PGHOST=localhost
+
