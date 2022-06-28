@@ -7,8 +7,9 @@
 [color]
 	ui = true
 
-[includeIf "gitdir:~/Work"]
+[includeIf "gitdir:~/Work/"]
 	path = ~/Work/.gitconfig
 
 [init]
 	defaultBranch = main
+
