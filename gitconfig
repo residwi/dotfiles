@@ -1,5 +1,7 @@
-[include]
-    path = ~/.gitconfig.user
+[user]
+	name = Resi Dwi
+	email = 37761892+residwi@users.noreply.github.com
+	signingKey = FF04D2FDD6D479E2
 
 [core]
 	excludesfile = ~/dotfiles/gitignore.global
@@ -13,3 +15,5 @@
 [init]
 	defaultBranch = main
 
+[commit]
+	gpgsign = true
