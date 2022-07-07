@@ -20,3 +20,5 @@ export DEVELOPMENT_TOOLS_PATH=$HOME/Development/tools
 
 export PGHOST=localhost
 
+export GPG_TTY=$(tty)
+
