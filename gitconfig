@@ -9,11 +9,12 @@
 [color]
 	ui = true
 
+[init]
+        defaultBranch = main
+
+[commit]
+        gpgsign = true
+
 [includeIf "gitdir:~/Work/"]
 	path = ~/Work/.gitconfig
 
-[init]
-	defaultBranch = main
-
-[commit]
-	gpgsign = true
