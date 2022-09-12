@@ -1,10 +1,17 @@
 #!/bin/bash
 
 function install_oh_my_zsh {
-    if [[ "$SHELL" != "/bin/zsh" ]]; then
-        echo -e "\033[31;1m ZSH is not installed! \033[0m"
-        exit 0
-    fi
+    search_locations=(
+        "/bin/zsh"
+        "/usr/bin/zsh"
+    )
+
+    for zsh_location in $search_locations; do
+        if [[ ! -f "${zsh_location}" ]]; then
+            echo -e "\033[31;1m ZSH is not installed! \033[0m"
+            exit 0
+        fi
+    done
 
     echo -e "\033[92mInstalling oh-my-zsh...\033[0m"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -18,14 +25,13 @@ function install_zsh_plugins {
 
 function setup_symlinks {
     echo -e "\033[92mSetting up symlinks... \033[0m"
-    ln -sfnv "$PWD/.asdfrc" ~/.asdfrc
-    ln -sfnv "$PWD/.gitconfig" ~/.gitconfig
-    ln -sfnv "$PWD/.zshrc" ~/.zshrc
+    ln -sfnv "$PWD/asdfrc" ~/.asdfrc
+    ln -sfnv "$PWD/gitconfig" ~/.gitconfig
+    ln -sfnv "$PWD/zshrc" ~/.zshrc
 }
 
 function setup_tools_development {
     echo -e "\033[92mSetting up tools development... \033[0m"
-    touch ~/.gitconfig.user
     mkdir -p ~/Development/tools
     ln -sfnv "$PWD/tools/docker-compose.yml" ~/Development/tools/docker-compose.yml
 }
@@ -34,6 +40,8 @@ function setup_work_folder {
     echo -e "\033[92mCreate Work folder... \033[0m"
     mkdir ~/Work
     touch ~/Work/.gitconfig
+    touch ~/Work/switch-clusters
+    touch ~/Work/prepare-work-env
 }
 
 install_oh_my_zsh
