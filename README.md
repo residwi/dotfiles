@@ -16,12 +16,8 @@ cd ~/dotfiles
 
 https://docs.brew.sh/Installation
 
-### Install packages
+### Install packages (MacOS)
 
 ```bash
 brew bundle
 ```
-
-### Setup gitconfig user
-
-Setup your user name and email in `~/.gitconfig.user`
