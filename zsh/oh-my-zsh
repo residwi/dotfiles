@@ -1,15 +1,3 @@
-if [[ "$(uname -s)" == "Darwin" ]]; then
-   eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
-
-# load PATH
-source ~/dotfiles/zsh/path.zsh
-
-# load environment variable
-source ~/dotfiles/zsh/env.zsh
-
-# load alias
-source ~/dotfiles/zsh/aliases.zsh
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -37,7 +25,7 @@ ZSH_THEME="robbyrussell"
 # HYPHEN_INSENSITIVE="true"
 
 # Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
+zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
@@ -112,10 +100,3 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-################# CUSTOM #####################
-
-# load Local config
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-
-[[ -f ~/.aliases.local ]] && source ~/.aliases.local

@@ -4,17 +4,16 @@
 	signingKey = FF04D2FDD6D479E2
 
 [core]
-	excludesfile = ~/dotfiles/gitignore.global
+	excludesfile = ~/.gitignore.global
 
 [color]
 	ui = true
 
 [init]
-        defaultBranch = main
+	defaultBranch = main
 
 [commit]
-        gpgsign = true
+	gpgsign = true
 
 [includeIf "gitdir:~/Work/"]
 	path = ~/Work/.gitconfig
-
