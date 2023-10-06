@@ -33,10 +33,7 @@ services:
     
   redis:
     image: redis:alpine
-    command: redis-server /usr/local/etc/redis/redis.conf
-    network_mode: host
-#    ports:
-#      - "6379:6379"
+    ports:
+     - "6379:6379"
     volumes: 
       - "${DEVELOPMENT_TOOLS_PATH}/redis/redis-data:/var/lib/redis"
-      - "${DEVELOPMENT_TOOLS_PATH}/redis/redis.conf:/usr/local/etc/redis/redis.conf"
