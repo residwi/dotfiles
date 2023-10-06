@@ -1,0 +1,31 @@
+export DOTFILES_BASE="$HOME/dotfiles"
+
+# all of zsh files
+typeset -U config_files
+config_files=($DOTFILES_BASE/*/*.zsh)
+
+# load the path files
+for file in ${(M)config_files:#*/path.zsh}; do
+	source "$file"
+done
+
+# load everything except the path files
+for file in ${config_files:#*/path.zsh}; do
+	source "$file"
+done
+
+autoload -Uz compinit
+for dump in ~/.zcompdump(N.mh+24); do
+	compinit
+done
+compinit -C
+
+# Load oh-my-zsh
+source $DOTFILES_BASE/zsh/oh-my-zsh
+
+unset config_files updated_at
+
+# load Local config
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+[[ -f ~/.aliases.local ]] && source ~/.aliases.local

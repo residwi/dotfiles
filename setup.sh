@@ -1,54 +1,119 @@
-#!/bin/bash
+#!/bin/sh
 
-function install_oh_my_zsh {
-    search_locations=(
-        "/bin/zsh"
-        "/usr/bin/zsh"
-    )
+export DOTFILES_BASE="$HOME/dotfiles"
 
-    for zsh_location in $search_locations; do
-        if [[ ! -f "${zsh_location}" ]]; then
-            echo -e "\033[31;1m ZSH is not installed! \033[0m"
-            exit 0
-        fi
-    done
-
-    echo -e "\033[92mInstalling oh-my-zsh...\033[0m"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+info() {
+	echo "[ \033[00;94m..\033[0m ]  \033[00;94m$1\033[0m"
 }
 
-function install_zsh_plugins {
-    echo -e "\033[92mInstalling zsh plugins...\033[0m"
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+success() {
+	echo "[ \033[00;92mOK\033[0m ]  \033[00;92m$1\033[0m"
 }
 
-function setup_symlinks {
-    echo -e "\033[92mSetting up symlinks... \033[0m"
-    ln -sfnv "$PWD/asdfrc" ~/.asdfrc
-    ln -sfnv "$PWD/gitconfig" ~/.gitconfig
-    ln -sfnv "$PWD/zshrc" ~/.zshrc
+fail() {
+	echo "[ \033[00;91mFAIL\033[0m ]  \033[00;91m$1\033[0m"
+	exit
 }
 
-function setup_tools_development {
-    echo -e "\033[92mSetting up tools development... \033[0m"
-    mkdir -p ~/Development/tools
-    ln -sfnv "$PWD/tools/docker-compose.yml" ~/Development/tools/docker-compose.yml
+link_file() {
+	if [ -e "$2" ]; then
+		if [ "$(readlink "$2")" = "$1" ]; then
+			success "skipped, already linked $2"
+			return 0
+		else
+			info "Backup file $2"
+			mv "$2" "$2.backup"
+			success "$2 moved to $2.backup"
+		fi
+	fi
+	ln -sfn "$1" "$2"
+	success "$1 linked to $2"
 }
 
-function setup_work_folder {
-    echo -e "\033[92mCreate Work folder... \033[0m"
-    mkdir ~/Work
-    touch ~/Work/.gitconfig
-    touch ~/Work/switch-clusters
-    touch ~/Work/prepare-work-env
+install_oh_my_zsh() {
+	search_locations=(
+		"/bin/zsh"
+		"/usr/bin/zsh"
+	)
+
+	for zsh_location in $search_locations; do
+		if [[ ! -f "${zsh_location}" ]]; then
+			fail "ZSH is not installed!"
+		fi
+	done
+
+	info "Installing oh-my-zsh"
+
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+	success "oh-my-zsh has been installed"
+}
+
+install_zsh_plugins() {
+	info "Installing zsh plugin: zsh-autosuggestions"
+	git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+	success "zsh-autosuggestions has been installed"
+
+	info "Installing zsh plugin: zsh-syntax-highlighting"
+	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+	success "zsh-syntax-highlighting has been installed"
+}
+
+setup_gitconfig() {
+	info 'Setup gitconfig'
+
+	if [[ "$(git config --global --get dotfiles.managed)" != "true" ]]; then
+		mv ~/.gitconfig ~/.gitconfig.backup
+		success "Backup ~/.gitconfig to ~/.gitconfig.backup"
+	else
+		info "already managed by dotfiles"
+	fi
+
+	git config --global include.path ~/.gitconfig.global
+	git config --global dotfiles.managed true
+
+	success "gitconfig installed"
+}
+
+setup_symlinks() {
+	info "Setup symlinks"
+
+	find -H "$DOTFILES_BASE" -maxdepth 3 -name '*.symlink' -not -path '*.git*' |
+		while read -r src; do
+			dst="$HOME/.$(basename "${src%.*}")"
+			link_file "$src" "$dst"
+		done
+}
+
+setup_tools_development() {
+	info "Setting up tools for development"
+
+	mkdir -p ~/Development/tools
+	link_file "$DOTFILES_BASE/tools/docker-compose.yml" ~/Development/tools/docker-compose.yml
+}
+
+setup_work_folder() {
+	info "Setting up Work folder"
+
+	mkdir ~/Work
+	touch ~/Work/.gitconfig
+	success "~/Work/.gitconfig has been created"
+
+	touch ~/Work/switch-clusters
+	chmod +x ~/Work/switch-clusters
+	success "~/Work/switch-clusters has been created"
+
+	touch ~/Work/prepare-work-env
+	chmod +x ~/Work/prepare-work-env
+	success "~/Work/prepare-work-env has been created"
 }
 
 install_oh_my_zsh
 install_zsh_plugins
+setup_gitconfig
 setup_symlinks
 setup_tools_development
 setup_work_folder
 
-echo -e "\033[92mDone! \033[0m"
+success "install dotfiles finished"
 exit 0
