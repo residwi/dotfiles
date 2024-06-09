@@ -10,6 +10,12 @@ indent_style = tab
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{rb,yaml,yml}]
+[*.{rb,yaml,yml,sh,zsh,css,scss,js,json}]
 indent_style = space
 indent_size = 2
+
+[*.rb]
+max_line_length = 120
+
+[*.py]
+indent_style = space
