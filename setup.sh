@@ -21,12 +21,14 @@ link_file() {
 			success "skipped, already linked $2"
 			return 0
 		else
-			info "Backup file $2"
-			mv "$2" "$2.backup"
-			success "$2 moved to $2.backup"
+      if [[ -f "$2" ]]; then
+        info "Backup file $2"
+        mv "$2" "$2.backup"
+        success "$2 moved to $2.backup"
+      fi
 		fi
 	fi
-	ln -sfn "$1" "$2"
+	ln -s "$1" "$2"
 	success "$1 linked to $2"
 }
 
@@ -88,24 +90,51 @@ setup_symlinks() {
 setup_tools_development() {
 	info "Setting up tools for development"
 
-	mkdir -p ~/Development/tools
+  if [[ ! -d ~/Development/tools ]]; then
+    mkdir -p ~/Development/tools
+    success "~/Development/tools/ has been created"
+  fi
+
 	link_file "$DOTFILES_BASE/tools/docker-compose.yml" ~/Development/tools/docker-compose.yml
 }
 
 setup_work_folder() {
 	info "Setting up Work folder"
 
-	mkdir ~/Work
-	touch ~/Work/.gitconfig
-	success "~/Work/.gitconfig has been created"
+  if [[ ! -d ~/Work ]]; then
+    mkdir -p ~/Work
+    success "~/Work/ has been created"
+  fi
 
-	touch ~/Work/switch-clusters
-	chmod +x ~/Work/switch-clusters
-	success "~/Work/switch-clusters has been created"
+  if [[ ! -f ~/Work/.gitconfig ]]; then
+    touch ~/Work/.gitconfig
+    success "~/Work/.gitconfig has been created"
+  fi
 
-	touch ~/Work/prepare-work-env
-	chmod +x ~/Work/prepare-work-env
-	success "~/Work/prepare-work-env has been created"
+
+  if [[ ! -f ~/Work/switch-clusters ]]; then
+    touch ~/Work/switch-clusters
+    chmod +x ~/Work/switch-clusters
+    success "~/Work/switch-clusters has been created"
+  fi
+
+
+  if [[ ! -f ~/Work/prepare-work-env ]]; then
+    touch ~/Work/prepare-work-env
+    chmod +x ~/Work/prepare-work-env
+    success "~/Work/prepare-work-env has been created"
+  fi
+}
+
+setup_neovim() {
+  info "Setting up NeoVim"
+
+  if [[ ! -d ~/.config ]]; then
+    mkdir -p ~/.config
+    success "~/.config has been created"
+  fi
+
+  link_file "$DOTFILES_BASE/nvim" ~/.config/nvim
 }
 
 install_oh_my_zsh
@@ -114,6 +143,7 @@ setup_gitconfig
 setup_symlinks
 setup_tools_development
 setup_work_folder
+setup_neovim
 
 success "install dotfiles finished"
 exit 0
