@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export EDITOR=vim
+export EDITOR=nvim
 
 export TZ='Asia/Jakarta'
 export LANG='en_US.UTF-8'
