@@ -1,0 +1,25 @@
+set -g status-style 'fg=#66ccff bg=#293038'
+set -g window-status-style 'fg=#66ccff'
+set -g window-status-current-style 'fg=#63ace5'
+
+# Use r to quickly reload tmux settings
+bind r source-file ~/.tmux.conf
+
+# Setup 'y' to yank (copy), just like vim-like
+set-window-option -g mode-keys vi
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'pbcopy'
+
+# vim-like pane switching
+bind -r k select-pane -U
+bind -r j select-pane -D
+bind -r h select-pane -L
+bind -r l select-pane -R
+
+# Enable mouse support
+set -g mouse on
+
+set -g status-right '"#h" %H:%M %d-%b-%y'
+
+# Length of tmux status line
+set -g status-left-length 30
