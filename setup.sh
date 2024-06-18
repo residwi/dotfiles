@@ -131,6 +131,17 @@ setup_neovim() {
   fi
 
   link_file "$DOTFILES_BASE/nvim" ~/.config/nvim
+
+  success "NeoVim has been setup"
+}
+
+setup_cheatsheet() {
+  info "Setting up cht.sh cheatsheet tool"
+
+  curl --progress-bar https://cht.sh/:cht.sh > "$DOTFILES_BASE/bin/cht.sh"
+  chmod +x "$DOTFILES_BASE/bin/cht.sh"
+
+  success "cht.sh has been installed"
 }
 
 install_oh_my_zsh
@@ -140,6 +151,7 @@ setup_symlinks
 setup_tools_development
 setup_work_folder
 setup_neovim
+setup_cheatsheet
 
 success "install dotfiles finished"
 exit 0
