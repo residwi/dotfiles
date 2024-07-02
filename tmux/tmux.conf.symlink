@@ -13,6 +13,9 @@ bind r source-file ~/.tmux.conf
 set -g base-index 1
 set-window-option -g pane-base-index 1
 
+# setup default window size to the smallest attached session
+set-window-option -g window-size smallest
+
 # Setup 'y' to yank (copy), just like vim-like
 set-window-option -g mode-keys vi
 bind -T copy-mode-vi v send-keys -X begin-selection
