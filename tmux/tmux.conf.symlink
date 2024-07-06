@@ -37,3 +37,11 @@ set -g status-right '"#h" %H:%M %d-%b-%y'
 
 # Length of tmux status line
 set -g status-left-length 30
+
+# Make vim work seamlessly with tmux
+set -g focus-events on
+
+# Prevent delay after pressing esc key
+# credit: https://www.johnhawthorn.com/2012/09/vi-escape-delays/
+# and https://unix.stackexchange.com/a/25638/221410
+set -s escape-time 0
