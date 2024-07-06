@@ -45,3 +45,7 @@ set -g focus-events on
 # credit: https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 # and https://unix.stackexchange.com/a/25638/221410
 set -s escape-time 0
+
+# Set the terminal window title, see https://github.com/neovim/neovim/issues/12944
+set-option -g set-titles on
+set -g set-titles-string '#T'
