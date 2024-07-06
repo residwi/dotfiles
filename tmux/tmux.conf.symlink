@@ -13,6 +13,9 @@ bind r source-file ~/.tmux.conf
 set -g base-index 1
 set-window-option -g pane-base-index 1
 
+# renumber windows sequentially after closing any of them
+set -g renumber-windows on
+
 # setup default window size to the smallest attached session
 set-window-option -g window-size smallest
 
