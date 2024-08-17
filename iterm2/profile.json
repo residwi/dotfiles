@@ -122,7 +122,7 @@
   },
   "Unicode Version" : 9,
   "Use Cursor Guide (Light)" : false,
-  "Option Key Sends" : 0,
+  "Option Key Sends" : 2,
   "Idle Code" : 0,
   "Ansi 13 Color (Dark)" : {
     "Red Component" : 0.72941176470588232,
