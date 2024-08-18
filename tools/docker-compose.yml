@@ -1,24 +1,22 @@
-version: '3.9'
-
 services:
   mysqldb:
     image: mysql:latest
-    environment: 
+    environment:
       MYSQL_ROOT_PASSWORD: secret
-    ports: 
+    ports:
       - "3306:3306"
-    volumes: 
+    volumes:
       - "${DEVELOPMENT_TOOLS_PATH}/database/mysql/data:/var/lib/mysql"
-  
+
   postgresdb:
     image: postgres:14
     command: postgres -c stats_temp_directory=/tmp
-    environment: 
+    environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
-    ports: 
+    ports:
       - "5432:5432"
-    volumes: 
+    volumes:
       - "${DEVELOPMENT_TOOLS_PATH}/database/postgresql/14/data:/var/lib/postgresql/data"
       - "/var/run/postgresql:/var/run/postgresql"
 
@@ -28,12 +26,12 @@ services:
     ports:
       - 27017:27017
     command: mongod
-    volumes: 
+    volumes:
       - "${DEVELOPMENT_TOOLS_PATH}/database/mongodb/data:/data/db"
-    
+
   redis:
     image: redis:alpine
     ports:
      - "6379:6379"
-    volumes: 
+    volumes:
       - "${DEVELOPMENT_TOOLS_PATH}/redis/redis-data:/var/lib/redis"
