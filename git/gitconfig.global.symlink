@@ -15,5 +15,11 @@
 [commit]
 	gpgsign = true
 
+[push]
+  autoSetupRemote = true
+
+[diff]
+  algorithm = histogram
+
 [includeIf "gitdir:~/Work/"]
 	path = ~/Work/.gitconfig
