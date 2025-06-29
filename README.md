@@ -2,22 +2,18 @@
 
 My personal configs
 
-# Setup
+## Quick Start
 
 ```bash
-git clone https://github.com/residwi/dotfiles ~/dotfiles
+# install everything
+rake install
 
-cd ~/dotfiles
+# or run with dry run first to see what would happen
+DRY_RUN=true rake install
 
-./setup.sh
-```
+# check current status of dotfiles
+rake status
 
-### Install homebrew (MacOS)
-
-https://docs.brew.sh/Installation
-
-### Install packages (MacOS)
-
-```bash
-brew bundle
+# list of all tasks
+rake -T
 ```
