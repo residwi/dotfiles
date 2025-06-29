@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export EDITOR=nvim
 
@@ -9,4 +9,4 @@ export LC_ALL='en_US.UTF-8'
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
-export DEVELOPMENT_TOOLS_PATH=$HOME/Development/tools
+export DEVELOPMENT_TOOLS_PATH='$HOME/Development/tools'

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set GOROOT
 source ~/.asdf/plugins/golang/set-env.zsh

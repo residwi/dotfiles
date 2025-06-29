@@ -1,0 +1,21 @@
+links:
+  - source: gitconfig
+    target: ~/.gitconfig
+
+  - source: gitignore
+    target: ~/.gitignore
+
+  - source: tmux.conf
+    target: ~/.tmux.conf
+
+  - source: zshrc
+    target: ~/.zshrc
+
+  - source: aliases
+    target: ~/.aliases
+
+  - source: asdfrc
+    target: ~/.asdfrc
+
+  - source: editorconfig
+    target: ~/.editorconfig
