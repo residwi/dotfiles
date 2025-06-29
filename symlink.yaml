@@ -19,3 +19,6 @@ links:
 
   - source: editorconfig
     target: ~/.editorconfig
+
+  - source: rubocop.yml
+    target: ~/.rubocop.yml
