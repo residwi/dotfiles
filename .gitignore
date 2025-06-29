@@ -10,4 +10,5 @@ vendor/
 .Spotlight-V100
 .Trashes
 
-bin/cht.sh
+# Backup files
+backup/

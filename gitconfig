@@ -4,7 +4,7 @@
 	signingKey = FF04D2FDD6D479E2
 
 [core]
-	excludesfile = ~/.gitignore.global
+	excludesfile = ~/.gitignore
 
 [color]
 	ui = true
