@@ -22,3 +22,6 @@ links:
 
   - source: rubocop.yml
     target: ~/.rubocop.yml
+
+  - source: zprofile
+    target: ~/.zprofile
