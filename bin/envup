@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Load .env file into shell session for environment variables
+
+if [[ -f .env ]]; then
+	export "$(xargs <.env)"
+else
+	echo 'No .env file found' 1>&2
+	exit 1
+fi
