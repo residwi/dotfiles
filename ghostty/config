@@ -4,6 +4,7 @@ font-family = JetBrainsMono Nerd Font
 font-size = 12
 font-thicken = true
 font-thicken-strength = 50
+font-feature = -calt
 window-inherit-font-size = false
 
 cursor-style = block
