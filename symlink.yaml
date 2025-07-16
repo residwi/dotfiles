@@ -28,3 +28,6 @@ links:
 
   - source: gemrc
     target: ~/.gemrc
+
+  - source: ghostty/config
+    target: ~/.config/ghostty/config
