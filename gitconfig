@@ -1,21 +1,21 @@
 [user]
-	name = Resi Dwi
-	email = 37761892+residwi@users.noreply.github.com
+  name = Resi Dwi
+  email = 37761892+residwi@users.noreply.github.com
 
 [include]
   path = ~/.gitconfig.personal
 
 [core]
-	excludesfile = ~/.gitignore
+  excludesfile = ~/.gitignore
 
 [color]
-	ui = true
+  ui = true
 
 [init]
-	defaultBranch = main
+  defaultBranch = main
 
 [commit]
-	gpgsign = true
+  gpgsign = true
 
 [push]
   autoSetupRemote = true
@@ -24,4 +24,4 @@
   algorithm = histogram
 
 [includeIf "gitdir:~/Work/"]
-	path = ~/Work/.gitconfig
+  path = ~/Work/.gitconfig
