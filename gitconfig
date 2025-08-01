@@ -1,7 +1,9 @@
 [user]
 	name = Resi Dwi
 	email = 37761892+residwi@users.noreply.github.com
-	signingKey = FF04D2FDD6D479E2
+
+[include]
+  path = ~/.gitconfig.personal
 
 [core]
 	excludesfile = ~/.gitignore
