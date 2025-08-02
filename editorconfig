@@ -37,7 +37,6 @@ indent_size = 4
 # documentation, utils
 [*.{md,mdx,diff}]
 indent_size = 4
-trim_trailing_whitespace = false
 
 # JVM languages
 [*.{groovy,java,kt}]
