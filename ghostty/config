@@ -32,3 +32,4 @@ macos-titlebar-style = transparent
 # global means overrides all other apps
 keybind = cmd+e=toggle_quick_terminal
 keybind = cmd+f=write_scrollback_file:open
+keybind = shift+enter=text:\x1b\r
