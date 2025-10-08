@@ -9,7 +9,7 @@ window-inherit-font-size = false
 
 cursor-style = block
 cursor-style-blink = false
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,sudo,title,ssh-env,ssh-terminfo
 cursor-text = #000000
 mouse-hide-while-typing = true
 
