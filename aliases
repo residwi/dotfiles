@@ -13,7 +13,7 @@ fi
 
 alias redis-cli="docker run -it --rm redis:alpine redis-cli -h host.docker.internal -p 6379"
 tools() {
-  docker-compose -f "${HOME}/Development/tools/compose.yaml" "$@"
+  docker compose -f "${DEVELOPMENT_TOOLS_PATH}/compose.yaml" "$@"
 }
 
 # Work
