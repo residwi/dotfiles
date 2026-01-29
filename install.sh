@@ -387,11 +387,22 @@ setup_symlinks() {
       local name
       name=$(basename "$item")
 
-      # Skip themes (handled separately) and systemd (handled below with individual unit files)
-      [[ "$name" == "themes" || "$name" == "systemd" ]] && continue
+      # Skip themes (handled separately), systemd (handled below), and hypr (copied instead of symlinked)
+      [[ "$name" == "themes" || "$name" == "systemd" || "$name" == "hypr" ]] && continue
 
       backup_and_symlink "$item" "$HOME/.config/$name"
     done
+  fi
+
+  # Hypr configs (copied to allow local modifications like NVIDIA detection)
+  if [[ -d "$DOTFILES_DIR/config/$OS/hypr" ]]; then
+    if [[ ! -d "$HOME/.config/hypr" ]]; then
+      log_info "Copying hypr configs..."
+      cp -R "$DOTFILES_DIR/config/$OS/hypr" "$HOME/.config/hypr"
+      log_success "Hypr configs copied to ~/.config/hypr"
+    else
+      log_info "Hypr config already exists, skipping (preserving user edits)"
+    fi
   fi
 
   # Systemd user services
