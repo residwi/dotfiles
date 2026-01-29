@@ -362,9 +362,6 @@ setup_symlinks() {
   [[ -f "$zsh_dir/zshrc" ]] && backup_and_symlink "$zsh_dir/zshrc" "$HOME/.zshrc"
   [[ -f "$zsh_dir/zprofile" ]] && backup_and_symlink "$zsh_dir/zprofile" "$HOME/.zprofile"
 
-  # nvim config
-  [[ -d "$DOTFILES_DIR/nvim" ]] && backup_and_symlink "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
-
   # OS-specific config symlinks
   if [[ -d "$DOTFILES_DIR/config/$OS" ]]; then
     for item in "$DOTFILES_DIR/config/$OS"/*; do
