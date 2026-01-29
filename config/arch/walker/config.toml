@@ -2,5 +2,24 @@
 show_icons = true
 icon_theme = "Papirus-Dark"
 
-[style]
-font = "JetBrainsMono Nerd Font"
+[theme]
+layout = "./themes/default/layout.xml"
+style = "./themes/default/style.css"
+
+[plugins.applications]
+prefix = ""
+
+[plugins.runner]
+prefix = "!"
+
+[plugins.websearch]
+prefix = "?"
+
+[plugins.calc]
+prefix = "="
+
+[plugins.clipboard]
+prefix = "@"
+
+[plugins.symbols]
+prefix = "e:"
