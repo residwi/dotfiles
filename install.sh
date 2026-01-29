@@ -428,9 +428,9 @@ setup_arch_extras() {
   }
 
   if prompt_confirm "Enable system services?"; then
-    for svc in sddm docker ufw power-profiles-daemon bluetooth.service; do
-      if systemctl list-unit-files | grep -q "^${svc%.service}"; then
-        sudo systemctl enable --now "$svc" 2>/dev/null && log_success "Enabled: $svc"
+    for svc in sddm.service docker.service ufw.service power-profiles-daemon.service bluetooth.service; do
+      if systemctl list-unit-files --no-legend "$svc" 2>/dev/null | grep -q "$svc"; then
+        sudo systemctl enable --now "$svc" && log_success "Enabled: $svc"
       else
         log_warn "Service not found: $svc"
       fi
