@@ -6,6 +6,12 @@ satty
 gpu-screen-recorder
 hyprsunset
 
+# Screenshot freeze
+wayfreeze
+
+# TUI scripting
+gum
+
 # Shell
 oh-my-zsh-git
 

@@ -44,6 +44,10 @@ libnotify
 sddm
 polkit-gnome
 
+# Session management
+uwsm
+xdg-terminal-exec
+
 # Applications
 firefox
 bitwarden
@@ -69,6 +73,19 @@ brightnessctl
 ufw
 snapper
 btrfs-progs
+
+# Utilities
+gnome-keyring
+pamixer
+bolt
+fastfetch
+tldr
+wireless-regdb
+upower
+imagemagick
+
+# Icons
+papirus-icon-theme
 
 # NVIDIA (base utils, DKMS installed via hardware detection)
 nvidia-utils
