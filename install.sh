@@ -276,10 +276,22 @@ setup_shell() {
 }
 
 setup_theme() {
+  # Skip theme setup on macOS (no Hyprland theming)
+  [[ "$OS" == "macos" ]] && return
+
   log_info "Setting up theme..."
   mkdir -p "$HOME/.config/theme"
 
-  local theme_source="$DOTFILES_DIR/config/arch/themes/$THEME_NAME"
+  local theme_dir="$DOTFILES_DIR/config/$OS/themes"
+  local theme_source="$theme_dir/$THEME_NAME"
+
+  # Symlink entire themes directory (needed for CSS @import paths)
+  if [[ -d "$theme_dir" ]]; then
+    backup_and_symlink "$theme_dir" "$HOME/.config/themes"
+    log_success "Themes directory symlinked"
+  fi
+
+  # Symlink current theme for easy access
   if [[ -d "$theme_source" ]]; then
     backup_and_symlink "$theme_source" "$HOME/.config/theme/current"
     log_success "Theme set to: $THEME_NAME"
