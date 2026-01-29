@@ -386,7 +386,10 @@ setup_symlinks() {
       [[ -e "$item" ]] || continue
       local name
       name=$(basename "$item")
-      [[ "$name" == "themes" ]] && continue
+
+      # Skip themes (handled separately) and systemd (handled below with individual unit files)
+      [[ "$name" == "themes" || "$name" == "systemd" ]] && continue
+
       backup_and_symlink "$item" "$HOME/.config/$name"
     done
   fi
