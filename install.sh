@@ -376,6 +376,11 @@ setup_symlinks() {
     done
     systemctl --user daemon-reload
   fi
+
+  # XDG terminals list
+  [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] && \
+    backup_and_symlink "$DOTFILES_DIR/config/$OS/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
+
   log_success "Symlinks configured"
 }
 
@@ -417,6 +422,26 @@ setup_arch_extras() {
       chmod +x "$script"
     done
   fi
+
+  # System configs (require sudo)
+  if [[ -d "$DOTFILES_DIR/config/arch/systemd/logind.conf.d" ]]; then
+    sudo mkdir -p /etc/systemd/logind.conf.d
+    for conf in "$DOTFILES_DIR/config/arch/systemd/logind.conf.d"/*; do
+      [[ -f "$conf" ]] || continue
+      sudo cp "$conf" "/etc/systemd/logind.conf.d/$(basename "$conf")"
+    done
+    log_success "Installed logind configs"
+  fi
+
+  if [[ -d "$DOTFILES_DIR/config/arch/systemd/sleep.conf.d" ]]; then
+    sudo mkdir -p /etc/systemd/sleep.conf.d
+    for conf in "$DOTFILES_DIR/config/arch/systemd/sleep.conf.d"/*; do
+      [[ -f "$conf" ]] || continue
+      sudo cp "$conf" "/etc/systemd/sleep.conf.d/$(basename "$conf")"
+    done
+    log_success "Installed sleep configs"
+  fi
+
   log_success "Arch extras configured"
 }
 
