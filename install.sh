@@ -310,7 +310,7 @@ install_packages() {
   log_info "Installing packages..."
   if [[ "$OS" == "macos" ]]; then
     if [[ -f "$DOTFILES_DIR/packages/Brewfile" ]]; then
-      brew bundle --file="$DOTFILES_DIR/packages/Brewfile" && log_success "Homebrew packages installed"
+      brew bundle -v --file="$DOTFILES_DIR/packages/Brewfile" && log_success "Homebrew packages installed"
     else
       log_warn "No packages/Brewfile found, skipping"
     fi
