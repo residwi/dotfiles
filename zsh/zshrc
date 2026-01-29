@@ -1,11 +1,11 @@
 export DOTFILES_BASE="$HOME/dotfiles"
 
 # Load core configs
-[[ -r "$DOTFILES_BASE/zsh/env.zsh" ]] && source "$DOTFILES_BASE/zsh/env.zsh"
-[[ -r "$DOTFILES_BASE/zsh/path.zsh" ]] && source "$DOTFILES_BASE/zsh/path.zsh"
+[[ -r "$DOTFILES_BASE/zsh/env.sh" ]] && source "$DOTFILES_BASE/zsh/env.sh"
+[[ -r "$DOTFILES_BASE/zsh/path.sh" ]] && source "$DOTFILES_BASE/zsh/path.sh"
 
 # Load tool configs
-for config in "$DOTFILES_BASE/zsh/tools"/*.zsh(N); do
+for config in "$DOTFILES_BASE/zsh/tools"/*.sh(N); do
   [[ -r "$config" ]] && source "$config"
 done
 

@@ -355,8 +355,8 @@ setup_symlinks() {
     done
   fi
 
-  # zsh files need special handling (zshrc -> ~/.zshrc, zprofile -> ~/.zprofile)
-  local zsh_dir="$DOTFILES_DIR/config/common/zsh"
+  # zsh files (zshrc -> ~/.zshrc, zprofile -> ~/.zprofile)
+  local zsh_dir="$DOTFILES_DIR/zsh"
   [[ -f "$zsh_dir/zshrc" ]] && backup_and_symlink "$zsh_dir/zshrc" "$HOME/.zshrc"
   [[ -f "$zsh_dir/zprofile" ]] && backup_and_symlink "$zsh_dir/zprofile" "$HOME/.zprofile"
 
