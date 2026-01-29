@@ -19,8 +19,11 @@ wiremix
 impala
 bluetui
 
-# Applications
+# Local file sharing application
 localsend-bin
+
+# Drawing/Editing application
+pinta
 
 # Bootloader snapshot support (requires limine already installed)
 limine-snapper-sync
