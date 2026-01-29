@@ -1,56 +1,63 @@
 #!/usr/bin/env bash
-# Screen recording utility using gpu-screen-recorder
+# Screen recording with portal, audio options, and waybar indicator
 
 set -euo pipefail
 
-RECORD_DIR="${HOME}/Videos/Recordings"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-FILENAME="${RECORD_DIR}/recording_${TIMESTAMP}.mp4"
-PIDFILE="/tmp/screenrecord.pid"
+[[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
+OUTPUT_DIR="${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
+mkdir -p "$OUTPUT_DIR"
 
-mkdir -p "$RECORD_DIR"
+DESKTOP_AUDIO=false
+MIC_AUDIO=false
 
-start_recording() {
-    if [ -f "$PIDFILE" ]; then
-        echo "Recording already in progress"
-        exit 1
-    fi
-    
-    # Get the focused monitor
-    MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
-    
-    gpu-screen-recorder -w "$MONITOR" -f 60 -a default_output -o "$FILENAME" &
-    echo $! > "$PIDFILE"
-    
-    notify-send "Screen Recording" "Started recording to $FILENAME"
+for arg in "$@"; do
+  case "$arg" in
+    --with-audio) DESKTOP_AUDIO=true ;;
+    --with-mic) MIC_AUDIO=true ;;
+    --stop)
+      if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+        pkill -SIGINT -f "^gpu-screen-recorder"
+        sleep 1
+        pkill -RTMIN+8 waybar 2>/dev/null || true
+        notify-send "Screen recording saved" "$OUTPUT_DIR"
+      fi
+      exit 0
+      ;;
+  esac
+done
+
+toggle_indicator() {
+  pkill -RTMIN+8 waybar 2>/dev/null || true
 }
 
-stop_recording() {
-    if [ ! -f "$PIDFILE" ]; then
-        echo "No recording in progress"
-        exit 1
-    fi
-    
-    kill "$(cat "$PIDFILE")" 2>/dev/null || true
-    rm -f "$PIDFILE"
-    
-    notify-send "Screen Recording" "Saved to $FILENAME"
-}
+if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+  pkill -SIGINT -f "^gpu-screen-recorder"
+  for i in {1..50}; do
+    pgrep -f "^gpu-screen-recorder" >/dev/null || break
+    sleep 0.1
+  done
+  if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+    pkill -9 -f "^gpu-screen-recorder"
+    notify-send "Recording stopped" "Force killed - video may be corrupted" -u critical
+  else
+    notify-send "Screen recording saved" "$OUTPUT_DIR"
+  fi
+  toggle_indicator
+  exit 0
+fi
 
-toggle_recording() {
-    if [ -f "$PIDFILE" ]; then
-        stop_recording
-    else
-        start_recording
-    fi
-}
+AUDIO_ARGS=""
+AUDIO_DEVICES=""
 
-case "${1:-toggle}" in
-    start) start_recording ;;
-    stop) stop_recording ;;
-    toggle) toggle_recording ;;
-    *)
-        echo "Usage: screenrecord [start|stop|toggle]"
-        exit 1
-        ;;
-esac
+[[ "$DESKTOP_AUDIO" == true ]] && AUDIO_DEVICES+="default_output"
+if [[ "$MIC_AUDIO" == true ]]; then
+  [[ -n "$AUDIO_DEVICES" ]] && AUDIO_DEVICES+="|"
+  AUDIO_DEVICES+="default_input"
+fi
+[[ -n "$AUDIO_DEVICES" ]] && AUDIO_ARGS="-a $AUDIO_DEVICES"
+
+FILENAME="$OUTPUT_DIR/recording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+gpu-screen-recorder -w portal -f 60 -o "$FILENAME" $AUDIO_ARGS &
+
+toggle_indicator
+notify-send "Screen recording started" "Recording to $OUTPUT_DIR"
