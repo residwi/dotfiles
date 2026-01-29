@@ -5,17 +5,15 @@
   "spacing": 0,
   "height": 26,
   "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
+  "modules-center": ["clock", "custom/recording"],
   "modules-right": [
-    "custom/recording",
-    "tray",
+    "group/tray-expander",
     "bluetooth",
     "network",
     "pulseaudio",
     "cpu",
     "battery"
   ],
-
   "hyprland/workspaces": {
     "on-click": "activate",
     "format": "{icon}",
@@ -41,20 +39,22 @@
       "5": []
     }
   },
-
+  "clock": {
+    "format": "{:%A %H:%M}",
+    "format-alt": "{:%d %B W%V %Y}",
+    "tooltip": false
+  },
+  "custom/recording": {
+    "exec": "~/.local/bin/waybar-recording",
+    "return-type": "json",
+    "interval": 1,
+    "signal": 8
+  },
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "ghostty -e btop",
-    "tooltip-format": "CPU: {usage}%"
+    "on-click": "uwsm-app -- ghostty -e btop"
   },
-
-  "clock": {
-    "format": "{:L%A %H:%M}",
-    "format-alt": "{:L%d %B W%V %Y}",
-    "tooltip": false
-  },
-
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "format": "{icon}",
@@ -65,9 +65,8 @@
     "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
-    "on-click": "ghostty -e impala"
+    "on-click": "uwsm-app -- impala"
   },
-
   "battery": {
     "format": "{capacity}% {icon}",
     "format-discharging": "{icon}",
@@ -86,7 +85,6 @@
       "critical": 10
     }
   },
-
   "bluetooth": {
     "format": "",
     "format-off": "󰂲",
@@ -94,14 +92,13 @@
     "format-connected": "󰂱",
     "format-no-controller": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "ghostty -e bluetui"
+    "on-click": "uwsm-app -- bluetui"
   },
-
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "ghostty -e wiremix",
+    "on-click": "uwsm-app -- wiremix",
     "on-click-right": "pamixer -t",
-    "tooltip-format": "Volume: {volume}%",
+    "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
     "format-muted": "",
     "format-icons": {
@@ -110,17 +107,20 @@
       "default": ["", "", ""]
     }
   },
-
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item"
+    },
+    "modules": ["custom/expand-icon", "tray"]
+  },
+  "custom/expand-icon": {
+    "format": "",
+    "tooltip": false
+  },
   "tray": {
     "icon-size": 12,
-    "spacing": 10
-  },
-
-  "custom/recording": {
-    "exec": "~/.local/bin/waybar-recording",
-    "return-type": "json",
-    "interval": 1,
-    "signal": 8,
-    "format": "{}"
+    "spacing": 17
   }
 }
