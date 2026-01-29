@@ -527,6 +527,30 @@ setup_firewall() {
   fi
 }
 
+setup_zsh_plugins() {
+  local plugins_dir="$HOME/.oh-my-zsh/custom/plugins"
+  local plugins=(
+    "zsh-syntax-highlighting|https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    "zsh-autosuggestions|https://github.com/zsh-users/zsh-autosuggestions.git"
+  )
+
+  mkdir -p "$plugins_dir"
+
+  for entry in "${plugins[@]}"; do
+    local name="${entry%%|*}"
+    local url="${entry##*|}"
+    local target="$plugins_dir/$name"
+
+    if [[ -d "$target/.git" ]]; then
+      log_info "Updating $name..."
+      git -C "$target" pull --quiet && log_success "Updated: $name"
+    else
+      log_info "Installing $name..."
+      git clone --depth 1 "$url" "$target" && log_success "Installed: $name"
+    fi
+  done
+}
+
 setup_shell() {
   echo ""
   log_info "Setting up shell..."
@@ -534,6 +558,8 @@ setup_shell() {
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     log_success "Oh My Zsh installed"
   fi
+
+  [[ -d "$HOME/.oh-my-zsh" ]] && setup_zsh_plugins
 
   if [[ "$SHELL" != *"zsh"* ]] && prompt_confirm "Set zsh as default shell?"; then
     local zsh_path
