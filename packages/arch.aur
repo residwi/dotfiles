@@ -20,3 +20,8 @@ bluetui
 
 # Applications
 localsend-bin
+
+# Bootloader with snapshot support
+limine
+limine-snapper-sync
+limine-mkinitcpio-hook
