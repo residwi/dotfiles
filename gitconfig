@@ -19,9 +19,32 @@
 
 [push]
   autoSetupRemote = true
+  followTags = true
 
 [diff]
   algorithm = histogram
+  colorMoved = default
+
+[rerere]
+  enabled = true
+  autoUpdate = true
+
+[merge]
+  conflictStyle = zdiff3
+
+[fetch]
+  prune = true
+  pruneTags = true
+
+[rebase]
+  autoStash = true
+  autoSquash = true
+
+[column]
+  ui = auto
+
+[branch]
+  sort = -committerdate
 
 [includeIf "gitdir:~/Work/"]
   path = ~/Work/.gitconfig
