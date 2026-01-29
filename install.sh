@@ -292,6 +292,13 @@ preflight() {
       exit 1
     fi
   elif [[ "$OS" == "arch" ]]; then
+    # Require limine bootloader for snapper integration
+    if ! command -v limine &>/dev/null; then
+      log_error "Limine bootloader is required. Install it during Arch installation."
+      log_error "See: https://wiki.archlinux.org/title/Limine"
+      exit 1
+    fi
+
     if ! command -v yay &>/dev/null && prompt_confirm "Install yay (AUR helper)?"; then
       sudo pacman -S --needed --noconfirm git base-devel
       local tmp_dir

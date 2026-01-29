@@ -91,11 +91,7 @@ hyprctl reload
 
 ## Requirements
 
-### macOS
+- **macOS**: Homebrew (installer handles it)
+- **Arch**: limine bootloader, git, base-devel, yay
 
-- Homebrew (auto-installed)
-
-### Arch Linux
-
-- yay (AUR helper, auto-installed)
-- Base packages: git, base-devel
+Limine is required for btrfs snapshot rollback with snapper. Install it during Arch installation.

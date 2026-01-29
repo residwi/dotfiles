@@ -92,7 +92,6 @@ nvidia-utils
 lib32-nvidia-utils
 
 # Network stack
-iwd
 avahi
 nss-mdns
 
