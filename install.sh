@@ -307,6 +307,14 @@ preflight() {
       (cd "$tmp_dir/yay" && makepkg -si --noconfirm) && rm -rf "$tmp_dir"
       log_success "yay installed"
     fi
+
+    if grep -q "^#\[multilib\]" /etc/pacman.conf; then
+      log_info "Enabling multilib repository..."
+      sudo sed -i '/^#\[multilib\]/{s/^#//;n;s/^#//}' /etc/pacman.conf
+      sudo pacman -Sy
+      log_success "Multilib repository enabled"
+    fi
+
     log_info "Some operations require sudo privileges"
     sudo -v
   fi
