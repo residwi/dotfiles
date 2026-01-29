@@ -366,6 +366,16 @@ setup_symlinks() {
       backup_and_symlink "$item" "$HOME/.config/$name"
     done
   fi
+
+  # Systemd user services
+  if [[ -d "$DOTFILES_DIR/config/$OS/systemd/user" ]]; then
+    mkdir -p "$HOME/.config/systemd/user"
+    for service in "$DOTFILES_DIR/config/$OS/systemd/user"/*; do
+      [[ -f "$service" ]] || continue
+      backup_and_symlink "$service" "$HOME/.config/systemd/user/$(basename "$service")"
+    done
+    systemctl --user daemon-reload
+  fi
   log_success "Symlinks configured"
 }
 
