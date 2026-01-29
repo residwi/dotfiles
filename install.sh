@@ -179,22 +179,18 @@ setup_user_groups() {
 
 setup_sddm() {
   [[ "$OS" != "arch" ]] && return
-  log_info "Configuring SDDM..."
 
   sudo mkdir -p /etc/sddm.conf.d
-
-  if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
-    sudo tee /etc/sddm.conf.d/autologin.conf >/dev/null <<EOF
+  if [[ ! -f /etc/sddm.conf.d/autologin.conf ]]; then
+    cat <<EOF | sudo tee /etc/sddm.conf.d/autologin.conf
 [Autologin]
 User=$USER
-Session=hyprland
+Session=hyprland-uwsm
 
 [Theme]
 Current=breeze
 EOF
-    log_success "SDDM autologin configured"
-  else
-    log_info "SDDM autologin already configured"
+    log_success "SDDM configured with hyprland-uwsm session"
   fi
 }
 
