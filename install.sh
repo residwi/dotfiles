@@ -423,11 +423,17 @@ setup_arch_extras() {
   setup_user_groups
   setup_fast_shutdown
 
-  # DNS resolver (systemd-resolved)
-  if prompt_confirm "Enable systemd-resolved for DNS?"; then
-    sudo systemctl enable --now systemd-resolved
-    sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-    log_success "Configured systemd-resolved"
+  # Configure mDNS resolution for printer discovery
+  if grep -q "^hosts:" /etc/nsswitch.conf && ! grep -q "mdns_minimal" /etc/nsswitch.conf; then
+    sudo sed -i 's/^hosts:.*/hosts: mymachines mdns_minimal [NOTFOUND=return] resolve files myhostname dns/' /etc/nsswitch.conf
+    log_success "Configured mDNS resolution"
+  fi
+
+  # Network stack setup
+  if prompt_confirm "Configure network stack (iwd + systemd-resolved)?"; then
+    if [[ -x "$DOTFILES_DIR/bin/arch/setup-network" ]]; then
+      "$DOTFILES_DIR/bin/arch/setup-network"
+    fi
   fi
 
   if [[ -d "$DOTFILES_DIR/bin/arch" ]]; then
