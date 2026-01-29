@@ -1,0 +1,26 @@
+@import "../../themes/catppuccin-mocha/swayosd.css";
+
+window {
+  border-radius: 8px;
+  opacity: 0.97;
+  border: 2px solid @border-color;
+  background-color: @background-color;
+}
+
+label {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 11pt;
+  color: @label;
+}
+
+image {
+  color: @image;
+}
+
+progressbar {
+  border-radius: 4px;
+}
+
+progress {
+  background-color: @progress;
+}
