@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Waybar custom module for screen recording indicator
+
+if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+    echo '{"text": "󰑋", "tooltip": "Recording in progress", "class": "recording"}'
+else
+    echo '{"text": "", "tooltip": "", "class": ""}'
+fi
