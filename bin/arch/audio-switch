@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Switch between audio output devices
+
+set -euo pipefail
+
+# Get current and available sinks
+current=$(pactl get-default-sink)
+sinks=$(pactl list short sinks | awk '{print $2}')
+
+# Find next sink
+next=""
+found_current=false
+first=""
+
+while IFS= read -r sink; do
+  [[ -z "$first" ]] && first="$sink"
+  if $found_current; then
+    next="$sink"
+    break
+  fi
+  [[ "$sink" == "$current" ]] && found_current=true
+done <<< "$sinks"
+
+# Wrap around to first if at end
+[[ -z "$next" ]] && next="$first"
+
+# Switch
+pactl set-default-sink "$next"
+notify-send "Audio output" "Switched to: ${next##*.}"
