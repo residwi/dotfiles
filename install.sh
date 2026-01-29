@@ -126,6 +126,145 @@ detect_intel() {
   fi
 }
 
+setup_docker() {
+  [[ "$OS" != "arch" ]] && return
+  log_info "Configuring Docker daemon..."
+
+  sudo mkdir -p /etc/docker
+  sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+{
+    "log-driver": "json-file",
+    "log-opts": { "max-size": "10m", "max-file": "5" },
+    "dns": ["172.17.0.1"],
+    "bip": "172.17.0.1/16"
+}
+EOF
+
+  sudo mkdir -p /etc/systemd/resolved.conf.d
+  echo -e '[Resolve]\nDNSStubListenerExtra=172.17.0.1' | sudo tee /etc/systemd/resolved.conf.d/20-docker-dns.conf >/dev/null
+  sudo systemctl restart systemd-resolved
+
+  sudo usermod -aG docker "${USER}"
+
+  sudo mkdir -p /etc/systemd/system/docker.service.d
+  sudo tee /etc/systemd/system/docker.service.d/no-block-boot.conf >/dev/null <<'EOF'
+[Unit]
+DefaultDependencies=no
+EOF
+
+  sudo systemctl daemon-reload
+  log_success "Docker configured"
+}
+
+setup_fast_shutdown() {
+  [[ "$OS" != "arch" ]] && return
+  log_info "Configuring faster shutdown..."
+
+  sudo mkdir -p /etc/systemd/system.conf.d
+  sudo tee /etc/systemd/system.conf.d/10-faster-shutdown.conf >/dev/null <<'EOF'
+[Manager]
+DefaultTimeoutStopSec=5s
+EOF
+
+  sudo systemctl daemon-reload
+  log_success "Fast shutdown configured (5s timeout)"
+}
+
+setup_user_groups() {
+  [[ "$OS" != "arch" ]] && return
+  log_info "Adding user to required groups..."
+  sudo usermod -aG input "${USER}"
+  log_success "Added user to input group"
+}
+
+setup_sddm() {
+  [[ "$OS" != "arch" ]] && return
+  log_info "Configuring SDDM..."
+
+  sudo mkdir -p /etc/sddm.conf.d
+
+  if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
+    sudo tee /etc/sddm.conf.d/autologin.conf >/dev/null <<EOF
+[Autologin]
+User=$USER
+Session=hyprland
+
+[Theme]
+Current=breeze
+EOF
+    log_success "SDDM autologin configured"
+  else
+    log_info "SDDM autologin already configured"
+  fi
+}
+
+setup_mimetypes() {
+  [[ "$OS" != "arch" ]] && return
+  log_info "Setting default applications..."
+
+  update-desktop-database ~/.local/share/applications 2>/dev/null || true
+
+  for mime in image/png image/jpeg image/gif image/webp image/bmp image/tiff; do
+    xdg-mime default imv.desktop "$mime"
+  done
+
+  xdg-mime default org.gnome.Evince.desktop application/pdf
+
+  xdg-settings set default-web-browser firefox.desktop
+  xdg-mime default firefox.desktop x-scheme-handler/http
+  xdg-mime default firefox.desktop x-scheme-handler/https
+
+  for mime in video/mp4 video/x-msvideo video/x-matroska video/x-flv video/webm video/quicktime video/mpeg; do
+    xdg-mime default mpv.desktop "$mime"
+  done
+
+  log_success "Default applications configured"
+}
+
+setup_snapper() {
+  [[ "$OS" != "arch" ]] && return
+
+  if ! command -v limine &>/dev/null; then
+    log_warn "Limine not found, skipping snapper setup"
+    return
+  fi
+
+  log_info "Setting up Snapper with Limine..."
+
+  if command -v yay &>/dev/null; then
+    yay -S --needed --noconfirm limine-snapper-sync limine-mkinitcpio-hook
+  fi
+
+  if ! sudo snapper list-configs 2>/dev/null | grep -q "root"; then
+    sudo snapper -c root create-config /
+    log_success "Created snapper config: root"
+  fi
+
+  if ! sudo snapper list-configs 2>/dev/null | grep -q "home"; then
+    sudo snapper -c home create-config /home
+    log_success "Created snapper config: home"
+  fi
+
+  sudo btrfs quota enable / 2>/dev/null || true
+
+  for config in root home; do
+    local config_file="/etc/snapper/configs/$config"
+    if [[ -f "$config_file" ]]; then
+      sudo sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="no"/' "$config_file"
+      sudo sed -i 's/^NUMBER_LIMIT="50"/NUMBER_LIMIT="5"/' "$config_file"
+      sudo sed -i 's/^NUMBER_LIMIT_IMPORTANT="10"/NUMBER_LIMIT_IMPORTANT="5"/' "$config_file"
+      sudo sed -i 's/^SPACE_LIMIT="0.5"/SPACE_LIMIT="0.3"/' "$config_file"
+      sudo sed -i 's/^FREE_LIMIT="0.2"/FREE_LIMIT="0.3"/' "$config_file"
+    fi
+  done
+
+  sudo systemctl enable limine-snapper-sync.service
+  sudo systemctl enable snapper-timeline.timer
+  sudo systemctl enable snapper-cleanup.timer
+
+  log_success "Snapper configured with Limine"
+}
+
 preflight() {
   log_info "Running preflight checks..."
   OS=$(detect_os)
@@ -239,15 +378,26 @@ setup_arch_extras() {
     detect_intel || true
   }
 
-  if prompt_confirm "Enable services (sddm, docker, ufw, power-profiles-daemon)?"; then
-    for svc in sddm docker ufw power-profiles-daemon; do
-      if systemctl list-unit-files | grep -q "^$svc"; then
+  if prompt_confirm "Enable system services?"; then
+    for svc in sddm docker ufw power-profiles-daemon bluetooth.service; do
+      if systemctl list-unit-files | grep -q "^${svc%.service}"; then
         sudo systemctl enable --now "$svc" 2>/dev/null && log_success "Enabled: $svc"
       else
         log_warn "Service not found: $svc"
       fi
     done
+
+    sudo systemctl disable systemd-networkd-wait-online.service 2>/dev/null || true
+    sudo systemctl mask systemd-networkd-wait-online.service 2>/dev/null || true
+    log_success "Disabled networkd-wait-online (faster boot)"
   fi
+
+  prompt_confirm "Configure Docker daemon?" && setup_docker
+  prompt_confirm "Configure SDDM autologin?" && setup_sddm
+  prompt_confirm "Configure Snapper (btrfs snapshots)?" && setup_snapper
+  prompt_confirm "Set default applications (mimetypes)?" && setup_mimetypes
+  setup_user_groups
+  setup_fast_shutdown
 
   if [[ -d "$DOTFILES_DIR/bin/arch" ]]; then
     mkdir -p "$HOME/.local/bin"
