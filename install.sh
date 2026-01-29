@@ -414,6 +414,13 @@ setup_arch_extras() {
   setup_user_groups
   setup_fast_shutdown
 
+  # DNS resolver (systemd-resolved)
+  if prompt_confirm "Enable systemd-resolved for DNS?"; then
+    sudo systemctl enable --now systemd-resolved
+    sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    log_success "Configured systemd-resolved"
+  fi
+
   if [[ -d "$DOTFILES_DIR/bin/arch" ]]; then
     mkdir -p "$HOME/.local/bin"
     for script in "$DOTFILES_DIR/bin/arch"/*; do
@@ -443,6 +450,19 @@ setup_arch_extras() {
   fi
 
   log_success "Arch extras configured"
+}
+
+setup_firewall() {
+  [[ "$OS" != "arch" ]] && return
+  command -v ufw &>/dev/null || return
+
+  if prompt_confirm "Configure UFW firewall (deny incoming, allow outgoing)?"; then
+    sudo ufw default deny incoming
+    sudo ufw default allow outgoing
+    sudo ufw allow ssh
+    sudo ufw --force enable
+    log_success "UFW firewall configured"
+  fi
 }
 
 setup_shell() {
@@ -507,6 +527,7 @@ main() {
   install_packages
   setup_symlinks
   setup_arch_extras
+  setup_firewall
   setup_shell
   setup_theme
   print_summary
