@@ -6,6 +6,7 @@ rsync
 unzip
 jq
 base-devel
+less
 
 # Shell
 zsh
