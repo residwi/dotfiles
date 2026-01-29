@@ -73,3 +73,14 @@ tooltip {
   border-radius: 4px;
   padding: 4px;
 }
+
+#custom-recording.recording {
+  color: #f38ba8;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}

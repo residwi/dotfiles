@@ -7,6 +7,7 @@
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
   "modules-right": [
+    "custom/recording",
     "tray",
     "bluetooth",
     "network",
@@ -113,5 +114,13 @@
   "tray": {
     "icon-size": 12,
     "spacing": 10
+  },
+
+  "custom/recording": {
+    "exec": "~/.local/bin/waybar-recording",
+    "return-type": "json",
+    "interval": 1,
+    "signal": 8,
+    "format": "{}"
   }
 }
