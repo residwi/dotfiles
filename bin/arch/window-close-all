@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Close all windows on current workspace
+
+set -euo pipefail
+
+workspace="$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .activeWorkspace.id')"
+hyprctl clients -j | jq -r --arg ws "$workspace" '.[] | select(.workspace.id == ($ws | tonumber)) | .address' | while read addr; do
+    hyprctl dispatch closewindow address:"$addr"
+done
