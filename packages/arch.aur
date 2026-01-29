@@ -25,3 +25,6 @@ localsend-bin
 # Bootloader snapshot support (requires limine already installed)
 limine-snapper-sync
 limine-mkinitcpio-hook
+
+# Launch terminal emulator from XDG wayland sessions
+xdg-terminal-exec

@@ -45,7 +45,6 @@ polkit-gnome
 
 # Session management
 uwsm
-xdg-terminal-exec
 
 # Applications
 firefox
