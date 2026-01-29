@@ -6,9 +6,9 @@ set -euo pipefail
 # Pause media playback
 playerctl pause 2>/dev/null || true
 
-# Lock Bitwarden if running
-if pgrep -x "bitwarden" >/dev/null; then
-  bitwarden lock 2>/dev/null &
+# Lock Bitwarden CLI if available
+if command -v bw &>/dev/null; then
+  bw lock 2>/dev/null &
 fi
 
 # Set keyboard to default layout
