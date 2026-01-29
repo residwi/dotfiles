@@ -1,10 +1,7 @@
 [general]
 show_icons = true
 icon_theme = "Papirus-Dark"
-
-[theme]
-layout = "./themes/default/layout.xml"
-style = "./themes/default/style.css"
+theme = "default"
 
 [plugins.applications]
 prefix = ""
