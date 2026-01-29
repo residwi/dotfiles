@@ -19,6 +19,9 @@ btop
 docker
 docker-compose
 
+# GTK theming
+gnome-themes-extra
+
 # Hyprland ecosystem
 hyprland
 hypridle
@@ -70,3 +73,8 @@ btrfs-progs
 # NVIDIA (base utils, DKMS installed via hardware detection)
 nvidia-utils
 lib32-nvidia-utils
+
+# Network stack
+iwd
+avahi
+nss-mdns
