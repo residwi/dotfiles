@@ -16,19 +16,19 @@
 
 [commit]
   gpgsign = true
-	verbose = true           # Include diff comment in commit message template
+  verbose = true           # Include diff comment in commit message template
 
 [push]
   autoSetupRemote = true   # Set upstream on first push
   followTags = true        # Push annotated tags with commits
 
 [pull]
-	rebase = true 			     # Rebase (instead of merge) on pull
+  rebase = true            # Rebase (instead of merge) on pull
 
 [diff]
   algorithm = histogram    # Clearer diffs on moved/edited lines
   colorMoved = plain       # Highlight moved blocks in diffs
-	mnemonicPrefix = true    # More intuitive refs in diff output
+  mnemonicPrefix = true    # More intuitive refs in diff output
 
 [rerere]
   enabled = true           # Record and reuse conflict resolutions
@@ -46,13 +46,13 @@
   autoSquash = true        # Automatically fixup/squash commits during rebase
 
 [column]
-	ui = auto 			         # Output in columns when possible
+  ui = auto                # Output in columns when possible
 
 [branch]
   sort = -committerdate    # Sort branches by most recent commit first
 
 [tag]
-	sort = -version:refname  # Sort version numbers as you would expect
+  sort = -version:refname  # Sort version numbers as you would expect
 
 [includeIf "gitdir:~/Work/"]
   path = ~/Work/.gitconfig
