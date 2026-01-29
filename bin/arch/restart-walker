@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+pkill walker 2>/dev/null || true
