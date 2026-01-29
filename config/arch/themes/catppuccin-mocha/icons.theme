@@ -1,0 +1,4 @@
+[Icon Theme]
+Name=Catppuccin-Mocha-Icons
+Comment=Icon theme for Catppuccin Mocha
+Inherits=Papirus-Dark,hicolor
