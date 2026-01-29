@@ -381,6 +381,15 @@ setup_symlinks() {
   [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] && \
     backup_and_symlink "$DOTFILES_DIR/config/$OS/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
 
+  # Desktop files
+  if [[ -d "$DOTFILES_DIR/config/$OS/applications" ]]; then
+    mkdir -p "$HOME/.local/share/applications"
+    for desktop in "$DOTFILES_DIR/config/$OS/applications"/*.desktop; do
+      [[ -f "$desktop" ]] || continue
+      backup_and_symlink "$desktop" "$HOME/.local/share/applications/$(basename "$desktop")"
+    done
+  fi
+
   log_success "Symlinks configured"
 }
 
