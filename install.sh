@@ -307,6 +307,7 @@ preflight() {
 }
 
 install_packages() {
+  echo ""
   log_info "Installing packages..."
   if [[ "$OS" == "macos" ]]; then
     if [[ -f "$DOTFILES_DIR/packages/Brewfile" ]]; then
@@ -336,6 +337,7 @@ install_packages() {
 }
 
 setup_symlinks() {
+  echo ""
   log_info "Setting up symlinks..."
   mkdir -p "$BACKUP_DIR"
 
@@ -402,6 +404,7 @@ setup_symlinks() {
 
 setup_arch_extras() {
   [[ "$OS" != "arch" ]] && return
+  echo ""
   log_info "Setting up Arch Linux configuration..."
 
   prompt_confirm "Run hardware detection (NVIDIA/Intel)?" && {
@@ -482,6 +485,8 @@ setup_arch_extras() {
 
 setup_firewall() {
   [[ "$OS" != "arch" ]] && return
+  echo ""
+
   command -v ufw &>/dev/null || return
 
   if prompt_confirm "Configure UFW firewall (deny incoming, allow outgoing)?"; then
@@ -494,6 +499,7 @@ setup_firewall() {
 }
 
 setup_shell() {
+  echo ""
   log_info "Setting up shell..."
   if [[ ! -d "$HOME/.oh-my-zsh" ]] && prompt_confirm "Install Oh My Zsh?"; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -512,6 +518,7 @@ setup_theme() {
   # Skip theme setup on macOS (no Hyprland theming)
   [[ "$OS" == "macos" ]] && return
 
+  echo ""
   log_info "Setting up theme..."
   mkdir -p "$HOME/.config/theme"
 
