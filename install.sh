@@ -417,10 +417,6 @@ setup_arch_extras() {
         log_warn "Service not found: $svc"
       fi
     done
-
-    sudo systemctl disable systemd-networkd-wait-online.service 2>/dev/null || true
-    sudo systemctl mask systemd-networkd-wait-online.service 2>/dev/null || true
-    log_success "Disabled networkd-wait-online (faster boot)"
   fi
 
   prompt_confirm "Configure Docker daemon?" && setup_docker
