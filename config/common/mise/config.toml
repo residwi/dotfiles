@@ -1,0 +1,4 @@
+[settings]
+experimental = true
+always_keep_download = false
+always_keep_install = false
