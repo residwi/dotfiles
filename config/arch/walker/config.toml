@@ -1,22 +1,33 @@
-[general]
-show_icons = true
-icon_theme = "Papirus-Dark"
+force_keyboard_focus = false
 theme = "default"
 
-[plugins.applications]
-prefix = ""
+[placeholders]
+"default" = { input = " Search...", list = "No Results" } # placeholders for input and empty list, key is the providers name, so f.e. "desktopapplications" or "menus:other"
 
-[plugins.runner]
-prefix = "!"
+[[providers.prefixes]]
+prefix = "/"
+provider = "providerlist"
 
-[plugins.websearch]
-prefix = "?"
+[[providers.prefixes]]
+prefix = ">"
+provider = "runner"
 
-[plugins.calc]
+[[providers.prefixes]]
+prefix = "."
+provider = "files"
+
+[[providers.prefixes]]
+prefix = ":"
+provider = "symbols"
+
+[[providers.prefixes]]
 prefix = "="
+provider = "calc"
 
-[plugins.clipboard]
+[[providers.prefixes]]
 prefix = "@"
+provider = "websearch"
 
-[plugins.symbols]
-prefix = "e:"
+[[providers.prefixes]]
+prefix = "$"
+provider = "clipboard"
