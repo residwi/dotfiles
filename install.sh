@@ -458,6 +458,13 @@ setup_arch_extras() {
     log_success "Installed sleep configs"
   fi
 
+  # System optimizations
+  if prompt_confirm "Apply system optimizations (faster shutdown, USB fix, pacman)?"; then
+    if [[ -x "$DOTFILES_DIR/bin/arch/apply-system-configs" ]]; then
+      "$DOTFILES_DIR/bin/arch/apply-system-configs"
+    fi
+  fi
+
   log_success "Arch extras configured"
 }
 
