@@ -334,6 +334,9 @@ install_packages() {
     local pacman_file="$DOTFILES_DIR/packages/arch.pacman"
     local aur_file="$DOTFILES_DIR/packages/arch.aur"
 
+    log_info "Updating package database..."
+    sudo pacman -Sy
+
     if [[ -f "$pacman_file" ]]; then
       local packages
       packages=$(grep -v '^#' "$pacman_file" | grep -v '^$' | tr '\n' ' ')
