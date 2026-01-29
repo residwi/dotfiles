@@ -1,0 +1,20 @@
+#!/bin/bash
+
+alias grep='grep --color=auto'
+alias zshrc='$EDITOR ~/.zshrc'
+alias llha='ls -lha'
+alias vim='nvim'
+
+if command -v brew >/dev/null 2>&1; then
+  brew() {
+    command brew "$@"
+  }
+fi
+
+alias redis-cli="docker run -it --rm redis:alpine redis-cli -h host.docker.internal -p 6379"
+tools() {
+  docker compose -f "${DEVELOPMENT_TOOLS_PATH}/compose.yaml" "$@"
+}
+
+# Work
+alias prepare-work-env='~/Work/prepare-work-env'

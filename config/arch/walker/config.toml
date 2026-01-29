@@ -1,0 +1,6 @@
+[general]
+show_icons = true
+icon_theme = "Papirus-Dark"
+
+[style]
+font = "JetBrainsMono Nerd Font"

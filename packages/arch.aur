@@ -1,0 +1,22 @@
+# Hyprland extras
+walker
+waypaper
+swayosd
+satty
+gpu-screen-recorder
+hyprsunset
+
+# Shell
+oh-my-zsh-git
+
+# Development
+lazydocker
+mise
+
+# Audio/Network TUI
+wiremix
+impala
+bluetui
+
+# Applications
+localsend-bin

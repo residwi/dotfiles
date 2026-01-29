@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Screen recording utility using gpu-screen-recorder
+
+set -euo pipefail
+
+RECORD_DIR="${HOME}/Videos/Recordings"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+FILENAME="${RECORD_DIR}/recording_${TIMESTAMP}.mp4"
+PIDFILE="/tmp/screenrecord.pid"
+
+mkdir -p "$RECORD_DIR"
+
+start_recording() {
+    if [ -f "$PIDFILE" ]; then
+        echo "Recording already in progress"
+        exit 1
+    fi
+    
+    # Get the focused monitor
+    MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
+    
+    gpu-screen-recorder -w "$MONITOR" -f 60 -a default_output -o "$FILENAME" &
+    echo $! > "$PIDFILE"
+    
+    notify-send "Screen Recording" "Started recording to $FILENAME"
+}
+
+stop_recording() {
+    if [ ! -f "$PIDFILE" ]; then
+        echo "No recording in progress"
+        exit 1
+    fi
+    
+    kill "$(cat "$PIDFILE")" 2>/dev/null || true
+    rm -f "$PIDFILE"
+    
+    notify-send "Screen Recording" "Saved to $FILENAME"
+}
+
+toggle_recording() {
+    if [ -f "$PIDFILE" ]; then
+        stop_recording
+    else
+        start_recording
+    fi
+}
+
+case "${1:-toggle}" in
+    start) start_recording ;;
+    stop) stop_recording ;;
+    toggle) toggle_recording ;;
+    *)
+        echo "Usage: screenrecord [start|stop|toggle]"
+        exit 1
+        ;;
+esac

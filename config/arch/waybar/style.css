@@ -1,0 +1,25 @@
+@import "~/.config/theme/current/waybar.css";
+
+* {
+    font-family: JetBrainsMono Nerd Font;
+    font-size: 13px;
+}
+
+window#waybar {
+    background: @background;
+    color: @foreground;
+}
+
+#workspaces button {
+    padding: 0 5px;
+    color: @foreground;
+}
+
+#workspaces button.active {
+    background: #89b4fa;
+    color: #1e1e2e;
+}
+
+#clock, #pulseaudio, #network, #battery {
+    padding: 0 10px;
+}
