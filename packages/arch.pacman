@@ -95,3 +95,6 @@ lib32-nvidia-utils
 iwd
 avahi
 nss-mdns
+
+# Font
+ttf-jetbrains-mono-nerd
