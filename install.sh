@@ -158,16 +158,27 @@ EOF
 
 setup_fast_shutdown() {
   [[ "$OS" != "arch" ]] && return
-  log_info "Configuring faster shutdown..."
 
-  sudo mkdir -p /etc/systemd/system.conf.d
-  sudo tee /etc/systemd/system.conf.d/10-faster-shutdown.conf >/dev/null <<'EOF'
+  if [[ ! -f /etc/systemd/system.conf.d/10-faster-shutdown.conf ]]; then
+    log_info "Configuring faster shutdown..."
+    sudo mkdir -p /etc/systemd/system.conf.d
+    sudo tee /etc/systemd/system.conf.d/10-faster-shutdown.conf >/dev/null <<'EOF'
 [Manager]
 DefaultTimeoutStopSec=5s
 EOF
+    sudo systemctl daemon-reload
+    log_success "Fast shutdown configured (5s timeout)"
+  fi
+}
 
-  sudo systemctl daemon-reload
-  log_success "Fast shutdown configured (5s timeout)"
+setup_pacman() {
+  [[ "$OS" != "arch" ]] && return
+
+  if ! grep -q "ILoveCandy" /etc/pacman.conf; then
+    log_info "Configuring pacman..."
+    sudo sed -i '/^\[options\]/a Color\nILoveCandy\nVerbosePkgLists\nParallelDownloads = 5' /etc/pacman.conf
+    log_success "Pacman configured (Color, ILoveCandy, ParallelDownloads)"
+  fi
 }
 
 setup_user_groups() {
@@ -374,7 +385,7 @@ setup_symlinks() {
   fi
 
   # XDG terminals list
-  [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] && \
+  [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] &&
     backup_and_symlink "$DOTFILES_DIR/config/$OS/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
 
   # Desktop files
@@ -391,7 +402,7 @@ setup_symlinks() {
 
 setup_arch_extras() {
   [[ "$OS" != "arch" ]] && return
-  log_info "Setting up Arch-specific configuration..."
+  log_info "Setting up Arch Linux configuration..."
 
   prompt_confirm "Run hardware detection (NVIDIA/Intel)?" && {
     detect_nvidia || true
@@ -418,6 +429,7 @@ setup_arch_extras() {
   prompt_confirm "Set default applications (mimetypes)?" && setup_mimetypes
   setup_user_groups
   setup_fast_shutdown
+  setup_pacman
 
   # Configure mDNS resolution for printer discovery
   if grep -q "^hosts:" /etc/nsswitch.conf && ! grep -q "mdns_minimal" /etc/nsswitch.conf; then
@@ -460,11 +472,13 @@ setup_arch_extras() {
     log_success "Installed sleep configs"
   fi
 
-  # System optimizations
-  if prompt_confirm "Apply system optimizations (faster shutdown, USB fix, pacman)?"; then
-    if [[ -x "$DOTFILES_DIR/bin/arch/apply-system-configs" ]]; then
-      "$DOTFILES_DIR/bin/arch/apply-system-configs"
-    fi
+  if [[ -d "$DOTFILES_DIR/config/arch/modprobe.d" ]]; then
+    sudo mkdir -p /etc/modprobe.d
+    for conf in "$DOTFILES_DIR/config/arch/modprobe.d"/*; do
+      [[ -f "$conf" ]] || continue
+      sudo cp "$conf" "/etc/modprobe.d/$(basename "$conf")"
+    done
+    log_success "Installed modprobe configs"
   fi
 
   log_success "Arch extras configured"
