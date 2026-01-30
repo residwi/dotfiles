@@ -999,6 +999,16 @@ setup_theme() {
   log_info "GTK theme will be applied on first graphical login"
 }
 
+setup_nvim_plugins() {
+  command -v nvim &>/dev/null || return
+
+  if [[ -d "$HOME/.config/nvim" ]]; then
+    log_info "Installing Neovim plugins..."
+    nvim --headless "+Lazy! sync" +qa
+    log_success "Neovim plugins installed"
+  fi
+}
+
 print_summary() {
   echo -e "\n========================================\n${GREEN}Installation Complete!${NC}\n========================================"
   echo "OS: $OS | Log: $LOG_FILE"
@@ -1031,6 +1041,7 @@ main() {
   setup_keyring
   setup_firewall
   setup_shell
+  setup_nvim_plugins
   setup_theme
   print_summary
 }
