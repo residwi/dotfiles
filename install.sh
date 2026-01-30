@@ -211,18 +211,30 @@ setup_mimetypes() {
 
   update-desktop-database ~/.local/share/applications 2>/dev/null || true
 
+  # Directories
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory
+
+  # Images
   for mime in image/png image/jpeg image/gif image/webp image/bmp image/tiff; do
     xdg-mime default imv.desktop "$mime"
   done
 
+  # PDF
   xdg-mime default org.gnome.Evince.desktop application/pdf
 
+  # Browser
   xdg-settings set default-web-browser firefox.desktop
   xdg-mime default firefox.desktop x-scheme-handler/http
   xdg-mime default firefox.desktop x-scheme-handler/https
 
-  for mime in video/mp4 video/x-msvideo video/x-matroska video/x-flv video/webm video/quicktime video/mpeg; do
+  # Videos
+  for mime in video/mp4 video/x-msvideo video/x-matroska video/x-flv video/webm video/quicktime video/mpeg video/ogg video/3gpp video/x-ms-wmv video/x-ms-asf; do
     xdg-mime default mpv.desktop "$mime"
+  done
+
+  # Text/code files with nvim
+  for mime in text/plain text/english text/x-makefile text/x-c++hdr text/x-c++src text/x-chdr text/x-csrc text/x-java text/x-moc text/x-pascal text/x-tcl text/x-tex text/x-c text/x-c++ text/xml application/x-shellscript application/xml; do
+    xdg-mime default nvim.desktop "$mime"
   done
 
   log_success "Default applications configured"
