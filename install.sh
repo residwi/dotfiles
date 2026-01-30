@@ -181,17 +181,6 @@ setup_pacman() {
   fi
 }
 
-setup_ssh_fix() {
-  [[ "$OS" != "arch" ]] && return
-
-  if [[ ! -f /etc/sysctl.d/99-ssh-mtu-probing.conf ]]; then
-    log_info "Configuring SSH MTU probing..."
-    echo "net.ipv4.tcp_mtu_probing = 1" | sudo tee /etc/sysctl.d/99-ssh-mtu-probing.conf >/dev/null
-    sudo sysctl --system >/dev/null 2>&1
-    log_success "SSH MTU probing enabled (fixes connection flakiness)"
-  fi
-}
-
 setup_sudo_tries() {
   [[ "$OS" != "arch" ]] && return
 
@@ -666,6 +655,12 @@ preflight() {
 
     log_info "Some operations require sudo privileges"
     sudo -v
+
+    if [[ ! -f /etc/sysctl.d/99-ssh-mtu-probing.conf ]]; then
+      log_info "Enabling TCP MTU probing..."
+      echo "net.ipv4.tcp_mtu_probing = 1" | sudo tee /etc/sysctl.d/99-ssh-mtu-probing.conf >/dev/null
+      sudo sysctl -w net.ipv4.tcp_mtu_probing=1 >/dev/null
+    fi
   fi
   log_success "Preflight checks passed"
 }
@@ -816,7 +811,6 @@ setup_arch_extras() {
   setup_user_groups
   setup_fast_shutdown
   setup_pacman
-  setup_ssh_fix
   setup_sudo_tries
   setup_lockout_limit
   setup_keyboard_layout
