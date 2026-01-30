@@ -779,25 +779,8 @@ setup_theme() {
     log_warn "Theme not found: $theme_source"
   fi
 
-  # Apply GTK theme (one-time setup)
-  if command -v gsettings &>/dev/null; then
-    # GTK theme
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
-
-    # Icon theme
-    gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
-
-    # Fonts
-    gsettings set org.gnome.desktop.interface font-name "Liberation Sans 11"
-    gsettings set org.gnome.desktop.interface monospace-font-name "JetBrainsMono Nerd Font 10"
-
-    # Cursor
-    gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
-    gsettings set org.gnome.desktop.interface cursor-size 24
-
-    log_success "GTK theme applied: Adwaita-dark with Papirus-Dark icons"
-  fi
+  # GTK theme is applied via first-login hook (requires DBus session)
+  log_info "GTK theme will be applied on first graphical login"
 }
 
 print_summary() {

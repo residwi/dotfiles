@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Runs once on first graphical login after dotfiles install
+# Handles session-dependent tasks that require DBus/Hyprland
+
+set -euo pipefail
+
+STATE_DIR="${HOME}/.local/state/dotfiles"
+STAMP="$STATE_DIR/first-login.done"
+LOG="$STATE_DIR/install.log"
+
+[[ -f "$STAMP" ]] && exit 0
+
+mkdir -p "$STATE_DIR"
+
+log() {
+  echo "[FIRST-LOGIN] $(date +%H:%M:%S) $1" | tee -a "$LOG"
+}
+
+log "Starting first-login setup..."
+
+# GTK theme (requires DBus session bus)
+if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+  gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
+  gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
+  gsettings set org.gnome.desktop.interface font-name "Liberation Sans 11"
+  gsettings set org.gnome.desktop.interface monospace-font-name "JetBrainsMono Nerd Font 10"
+  gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
+  gsettings set org.gnome.desktop.interface cursor-size 24
+  log "GTK theme applied: Adwaita-dark with Papirus-Dark icons"
+fi
+
+# User systemd units (one-time enable, not per-session)
+if systemctl --user enable --now battery-monitor.timer 2>/dev/null; then
+  log "Battery monitor timer enabled"
+fi
+
+# Welcome notification
+if command -v notify-send &>/dev/null; then
+  notify-send "Dotfiles" "First-login setup complete" -i dialog-information
+fi
+
+touch "$STAMP"
+log "First-login setup complete"
