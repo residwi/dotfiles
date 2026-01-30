@@ -294,6 +294,16 @@ setup_walker() {
   [[ "$OS" != "arch" ]] && return
   command -v walker &>/dev/null || return
 
+  # Enable Elephant service (required backend for Walker)
+  if command -v elephant &>/dev/null; then
+    if ! systemctl --user is-enabled elephant.service &>/dev/null; then
+      log_info "Enabling Elephant service..."
+      elephant service enable
+      systemctl --user start elephant.service
+      log_success "Elephant service enabled and started"
+    fi
+  fi
+
   # Create autostart entry
   mkdir -p "$HOME/.config/autostart"
   if [[ ! -f "$HOME/.config/autostart/walker.desktop" ]]; then
