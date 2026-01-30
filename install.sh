@@ -454,7 +454,7 @@ setup_snapper() {
 
   # Extract kernel cmdline from existing config
   local cmdline
-  cmdline=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//')
+  cmdline=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//' || true)
 
   if [[ -z "$cmdline" ]]; then
     log_warn "Could not extract cmdline from limine config"
@@ -463,7 +463,7 @@ setup_snapper() {
 
   # Auto-detect OS name from limine.conf entry
   local os_name
-  os_name=$(grep '^/:' "$limine_config" | head -1 | sed 's|^/:||')
+  os_name=$(grep '^/:' "$limine_config" | head -1 | sed 's|^/:||' || true)
   os_name="${os_name:-Arch Linux}"
 
   log_info "Detected OS name: $os_name"
