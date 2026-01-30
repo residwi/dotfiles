@@ -181,6 +181,187 @@ setup_pacman() {
   fi
 }
 
+setup_ssh_fix() {
+  [[ "$OS" != "arch" ]] && return
+
+  if [[ ! -f /etc/sysctl.d/99-ssh-mtu-probing.conf ]]; then
+    log_info "Configuring SSH MTU probing..."
+    echo "net.ipv4.tcp_mtu_probing = 1" | sudo tee /etc/sysctl.d/99-ssh-mtu-probing.conf >/dev/null
+    sudo sysctl --system >/dev/null 2>&1
+    log_success "SSH MTU probing enabled (fixes connection flakiness)"
+  fi
+}
+
+setup_sudo_tries() {
+  [[ "$OS" != "arch" ]] && return
+
+  if [[ ! -f /etc/sudoers.d/passwd-tries ]]; then
+    log_info "Configuring sudo password tries..."
+    echo "Defaults passwd_tries=10" | sudo tee /etc/sudoers.d/passwd-tries >/dev/null
+    sudo chmod 440 /etc/sudoers.d/passwd-tries
+    log_success "Sudo password tries increased to 10"
+  fi
+}
+
+setup_lockout_limit() {
+  [[ "$OS" != "arch" ]] && return
+
+  if ! grep -q "deny=10" /etc/security/faillock.conf 2>/dev/null; then
+    log_info "Configuring lockout limits..."
+    # Set faillock deny limit to 10 and unlock time to 2 minutes
+    sudo sed -i 's/^# *deny = .*/deny = 10/' /etc/security/faillock.conf
+    sudo sed -i 's/^# *unlock_time = .*/unlock_time = 120/' /etc/security/faillock.conf
+    log_success "Lockout limit set to 10 attempts, 2min unlock"
+  fi
+}
+
+setup_keyboard_layout() {
+  [[ "$OS" != "arch" ]] && return
+
+  local vconsole="/etc/vconsole.conf"
+  local hyprconf="$HOME/.config/hypr/input.conf"
+
+  [[ ! -f "$vconsole" || ! -f "$hyprconf" ]] && return
+
+  if grep -q '^XKBLAYOUT=' "$vconsole"; then
+    local layout
+    layout=$(grep '^XKBLAYOUT=' "$vconsole" | cut -d= -f2 | tr -d '"')
+
+    if [[ -n "$layout" ]] && ! grep -q "kb_layout = $layout" "$hyprconf"; then
+      log_info "Syncing keyboard layout from vconsole..."
+      sed -i "/^[[:space:]]*kb_options *=/i\\  kb_layout = $layout" "$hyprconf"
+      log_success "Keyboard layout set to: $layout"
+    fi
+  fi
+
+  if grep -q '^XKBVARIANT=' "$vconsole"; then
+    local variant
+    variant=$(grep '^XKBVARIANT=' "$vconsole" | cut -d= -f2 | tr -d '"')
+
+    if [[ -n "$variant" ]] && ! grep -q "kb_variant = $variant" "$hyprconf"; then
+      sed -i "/^[[:space:]]*kb_options *=/i\\  kb_variant = $variant" "$hyprconf"
+      log_success "Keyboard variant set to: $variant"
+    fi
+  fi
+}
+
+setup_wireless_regdom() {
+  [[ "$OS" != "arch" ]] && return
+
+  local regdom_conf="/etc/conf.d/wireless-regdom"
+  [[ ! -f "$regdom_conf" ]] && return
+
+  # Check if already set
+  if grep -q '^WIRELESS_REGDOM=' "$regdom_conf" 2>/dev/null; then
+    return
+  fi
+
+  if [[ -e "/etc/localtime" ]]; then
+    local timezone country
+    timezone=$(readlink -f /etc/localtime)
+    timezone=${timezone#/usr/share/zoneinfo/}
+    country="${timezone%%/*}"
+
+    # If not a two-letter code, look it up
+    if [[ ! "$country" =~ ^[A-Z]{2}$ ]] && [[ -f "/usr/share/zoneinfo/zone.tab" ]]; then
+      country=$(awk -v tz="$timezone" '$3 == tz {print $1; exit}' /usr/share/zoneinfo/zone.tab)
+    fi
+
+    if [[ "$country" =~ ^[A-Z]{2}$ ]]; then
+      log_info "Setting wireless regulatory domain..."
+      echo "WIRELESS_REGDOM=\"$country\"" | sudo tee -a "$regdom_conf" >/dev/null
+      command -v iw &>/dev/null && sudo iw reg set "$country" 2>/dev/null
+      log_success "Wireless regdom set to: $country"
+    fi
+  fi
+}
+
+setup_usb_autosuspend() {
+  [[ "$OS" != "arch" ]] && return
+
+  if [[ ! -f /etc/modprobe.d/disable-usb-autosuspend.conf ]]; then
+    log_info "Disabling USB autosuspend..."
+    echo "options usbcore autosuspend=-1" | sudo tee /etc/modprobe.d/disable-usb-autosuspend.conf >/dev/null
+    log_success "USB autosuspend disabled (fixes peripheral disconnects)"
+  fi
+}
+
+setup_power_button() {
+  [[ "$OS" != "arch" ]] && return
+
+  local logind_drop="/etc/systemd/logind.conf.d/10-power-button.conf"
+  if [[ ! -f "$logind_drop" ]]; then
+    log_info "Configuring power button to use custom menu..."
+    sudo mkdir -p /etc/systemd/logind.conf.d
+    sudo tee "$logind_drop" >/dev/null <<'EOF'
+[Login]
+HandlePowerKey=ignore
+EOF
+    log_success "Power button configured (use SUPER+ESCAPE for power menu)"
+  fi
+}
+
+setup_walker() {
+  [[ "$OS" != "arch" ]] && return
+  command -v walker &>/dev/null || return
+
+  # Create autostart entry
+  mkdir -p "$HOME/.config/autostart"
+  if [[ ! -f "$HOME/.config/autostart/walker.desktop" ]]; then
+    log_info "Setting up Walker autostart..."
+    cat >"$HOME/.config/autostart/walker.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Walker
+Exec=walker --gapplication-service
+NoDisplay=true
+EOF
+    log_success "Walker autostart configured"
+  fi
+
+  # Create pacman hook to restart walker after updates
+  if [[ ! -f /etc/pacman.d/hooks/walker-restart.hook ]]; then
+    sudo mkdir -p /etc/pacman.d/hooks
+    sudo tee /etc/pacman.d/hooks/walker-restart.hook >/dev/null <<'EOF'
+[Trigger]
+Type = Package
+Operation = Upgrade
+Target = walker
+Target = walker-debug
+
+[Action]
+Description = Restarting Walker after update
+When = PostTransaction
+Exec = restart-walker
+EOF
+    log_success "Walker pacman hook installed"
+  fi
+}
+
+setup_mise_work() {
+  [[ "$OS" != "arch" ]] && return
+  command -v mise &>/dev/null || return
+
+  if [[ ! -d "$HOME/Work" ]]; then
+    log_info "Setting up Work directory with mise..."
+    mkdir -p "$HOME/Work/tries"
+
+    cat >"$HOME/Work/.mise.toml" <<'EOF'
+[env]
+_.path = "{{ cwd }}/bin"
+EOF
+
+    mise trust "$HOME/Work/.mise.toml" 2>/dev/null || true
+    log_success "Work directory configured with mise (./bin in PATH)"
+  fi
+
+  # Install Node.js if not present
+  if ! mise list node 2>/dev/null | grep -q "node"; then
+    log_info "Installing Node.js via mise..."
+    mise use -g node@lts 2>/dev/null && log_success "Node.js LTS installed via mise"
+  fi
+}
+
 setup_user_groups() {
   [[ "$OS" != "arch" ]] && return
   log_info "Adding user to required groups..."
@@ -587,6 +768,12 @@ setup_symlinks() {
   [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] &&
     backup_and_symlink "$DOTFILES_DIR/config/$OS/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
 
+  # UWSM environment
+  [[ -f "$DOTFILES_DIR/config/$OS/uwsm/env" ]] && {
+    mkdir -p "$HOME/.config/uwsm"
+    backup_and_symlink "$DOTFILES_DIR/config/$OS/uwsm/env" "$HOME/.config/uwsm/env"
+  }
+
   # Desktop files
   if [[ -d "$DOTFILES_DIR/config/$OS/applications" ]]; then
     mkdir -p "$HOME/.local/share/applications"
@@ -610,7 +797,7 @@ setup_arch_extras() {
   }
 
   if prompt_confirm "Enable system services?"; then
-    for svc in sddm.service docker.service ufw.service power-profiles-daemon.service bluetooth.service; do
+    for svc in sddm.service docker.service ufw.service power-profiles-daemon.service bluetooth.service bolt.service avahi-daemon.service; do
       if systemctl list-unit-files --no-legend "$svc" 2>/dev/null | grep -q "$svc"; then
         sudo systemctl enable --now "$svc" && log_success "Enabled: $svc"
       else
@@ -623,14 +810,36 @@ setup_arch_extras() {
   prompt_confirm "Configure SDDM autologin?" && setup_sddm
   prompt_confirm "Configure Snapper (btrfs snapshots)?" && setup_snapper
   prompt_confirm "Set default applications (mimetypes)?" && setup_mimetypes
+  prompt_confirm "Disable USB autosuspend (fixes TB dock issues, uses more battery)?" && setup_usb_autosuspend
+
+  # Always-run configs (low-risk, high-value)
   setup_user_groups
   setup_fast_shutdown
   setup_pacman
+  setup_ssh_fix
+  setup_sudo_tries
+  setup_lockout_limit
+  setup_keyboard_layout
+  setup_wireless_regdom
+  setup_power_button
+  setup_walker
+  setup_mise_work
 
-  # Configure mDNS resolution for printer discovery
+  # Configure mDNS resolution for printer discovery (use Avahi, not systemd-resolved mDNS)
   if grep -q "^hosts:" /etc/nsswitch.conf && ! grep -q "mdns_minimal" /etc/nsswitch.conf; then
     sudo sed -i 's/^hosts:.*/hosts: mymachines mdns_minimal [NOTFOUND=return] resolve files myhostname dns/' /etc/nsswitch.conf
-    log_success "Configured mDNS resolution"
+    log_success "Configured mDNS resolution (nsswitch)"
+  fi
+
+  # Disable systemd-resolved mDNS to avoid conflict with Avahi
+  if [[ ! -f /etc/systemd/resolved.conf.d/10-disable-mdns.conf ]]; then
+    sudo mkdir -p /etc/systemd/resolved.conf.d
+    sudo tee /etc/systemd/resolved.conf.d/10-disable-mdns.conf >/dev/null <<'EOF'
+[Resolve]
+MulticastDNS=no
+EOF
+    sudo systemctl restart systemd-resolved 2>/dev/null || true
+    log_success "Disabled systemd-resolved mDNS (using Avahi instead)"
   fi
 
   # Network stack setup
@@ -719,7 +928,22 @@ setup_firewall() {
     sudo ufw default deny incoming
     sudo ufw default allow outgoing
     sudo ufw allow ssh
+
+    # LocalSend file sharing
+    sudo ufw allow 53317/udp comment 'localsend'
+    sudo ufw allow 53317/tcp comment 'localsend'
+
+    # Docker DNS (only if docker configured)
+    if [[ -f /etc/docker/daemon.json ]]; then
+      sudo ufw allow in proto udp from 172.16.0.0/12 to 172.17.0.1 port 53 comment 'docker-dns'
+      if command -v ufw-docker &>/dev/null; then
+        sudo ufw-docker install
+      fi
+    fi
+
     sudo ufw --force enable
+    sudo systemctl enable ufw
+    sudo ufw reload
     log_success "UFW firewall configured"
   fi
 }
