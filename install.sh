@@ -228,6 +228,7 @@ setup_mimetypes() {
   log_success "Default applications configured"
 }
 
+# reference: https://github.com/basecamp/omarchy/blob/dev/install/login/limine-snapper.sh
 setup_snapper() {
   [[ "$OS" != "arch" ]] && return
 
@@ -240,8 +241,144 @@ setup_snapper() {
 
   if command -v yay &>/dev/null; then
     yay -S --needed --noconfirm limine-snapper-sync limine-mkinitcpio-hook
+  else
+    log_warn "yay not found, skipping limine-snapper-sync installation"
+    return
   fi
 
+  # Find limine.conf location
+  local limine_config=""
+  local search_paths=(
+    "/boot/EFI/arch-limine/limine.conf"
+    "/boot/EFI/BOOT/limine.conf"
+    "/boot/EFI/limine/limine.conf"
+    "/boot/limine/limine.conf"
+    "/boot/limine.conf"
+  )
+
+  for path in "${search_paths[@]}"; do
+    if [[ -f "$path" ]]; then
+      limine_config="$path"
+      break
+    fi
+  done
+
+  if [[ -z "$limine_config" ]]; then
+    log_error "Limine config not found, skipping snapper setup"
+    return
+  fi
+
+  log_info "Found limine config: $limine_config"
+
+  # Extract kernel cmdline from existing config
+  local cmdline
+  cmdline=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//')
+
+  if [[ -z "$cmdline" ]]; then
+    log_warn "Could not extract cmdline from limine config"
+    cmdline="root=UUID=XXXX rw"
+  fi
+
+  # Auto-detect OS name from limine.conf entry
+  local os_name
+  os_name=$(grep '^/:' "$limine_config" | head -1 | sed 's|^/:||')
+  os_name="${os_name:-Arch Linux}"
+
+  log_info "Detected OS name: $os_name"
+
+  # Detect EFI mode
+  local is_efi=""
+  [[ -d /sys/firmware/efi ]] && is_efi="yes"
+
+  # Configure mkinitcpio hooks for snapshot booting
+  log_info "Configuring mkinitcpio hooks..."
+
+  sudo mkdir -p /etc/mkinitcpio.conf.d
+
+  sudo tee /etc/mkinitcpio.conf.d/snapper-hooks.conf >/dev/null <<'EOF'
+HOOKS=(base udev keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+EOF
+
+  sudo tee /etc/mkinitcpio.conf.d/thunderbolt.conf >/dev/null <<'EOF'
+MODULES+=(thunderbolt)
+EOF
+
+  log_success "Configured mkinitcpio hooks"
+
+  # Create /etc/default/limine
+  log_info "Creating /etc/default/limine..."
+
+  if [[ -n "$is_efi" ]]; then
+    sudo tee /etc/default/limine >/dev/null <<EOF
+TARGET_OS_NAME="$os_name"
+
+ESP_PATH="/boot"
+
+KERNEL_CMDLINE[default]="$cmdline"
+KERNEL_CMDLINE[default]+=" quiet"
+
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="arch"
+
+ENABLE_LIMINE_FALLBACK=yes
+
+FIND_BOOTLOADERS=yes
+
+BOOT_ORDER="*, *fallback, Snapshots"
+
+MAX_SNAPSHOT_ENTRIES=5
+
+SNAPSHOT_FORMAT_CHOICE=5
+EOF
+  else
+    sudo tee /etc/default/limine >/dev/null <<EOF
+TARGET_OS_NAME="$os_name"
+
+ESP_PATH="/boot"
+
+KERNEL_CMDLINE[default]="$cmdline"
+KERNEL_CMDLINE[default]+=" quiet"
+
+FIND_BOOTLOADERS=yes
+
+BOOT_ORDER="*, *fallback, Snapshots"
+
+MAX_SNAPSHOT_ENTRIES=5
+
+SNAPSHOT_FORMAT_CHOICE=5
+EOF
+  fi
+
+  log_success "Created /etc/default/limine"
+
+  # Standardize limine.conf location
+  if [[ "$limine_config" != "/boot/limine.conf" ]] && [[ -f "$limine_config" ]]; then
+    sudo rm "$limine_config"
+    log_info "Removed old config: $limine_config"
+  fi
+
+  # Create /boot/limine.conf with Catppuccin Mocha theming
+  log_info "Creating /boot/limine.conf..."
+  sudo tee /boot/limine.conf >/dev/null <<'EOF'
+default_entry: 2
+interface_branding: Arch Linux
+interface_branding_color: 2
+hash_mismatch_panic: no
+
+term_background: 1e1e2e
+backdrop: 1e1e2e
+
+term_palette: 1e1e2e;f38ba8;a6e3a1;f9e2af;89b4fa;cba6f7;94e2d5;cdd6f4
+term_palette_bright: 45475a;f38ba8;a6e3a1;f9e2af;89b4fa;cba6f7;94e2d5;cdd6f4
+
+term_foreground: cdd6f4
+term_foreground_bright: cdd6f4
+term_background_bright: 313244
+EOF
+
+  log_success "Created /boot/limine.conf"
+
+  # Create snapper configs
   if ! sudo snapper list-configs 2>/dev/null | grep -q "root"; then
     sudo snapper -c root create-config /
     log_success "Created snapper config: root"
@@ -252,8 +389,10 @@ setup_snapper() {
     log_success "Created snapper config: home"
   fi
 
+  # Enable btrfs quota
   sudo btrfs quota enable / 2>/dev/null || true
 
+  # Tweak snapper configs
   for config in root home; do
     local config_file="/etc/snapper/configs/$config"
     if [[ -f "$config_file" ]]; then
@@ -265,9 +404,26 @@ setup_snapper() {
     fi
   done
 
+  # Enable services
   sudo systemctl enable limine-snapper-sync.service
   sudo systemctl enable snapper-timeline.timer
   sudo systemctl enable snapper-cleanup.timer
+
+  # Regenerate initramfs with new hooks
+  log_info "Regenerating initramfs..."
+  sudo mkinitcpio -P
+
+  # Update limine configuration
+  log_info "Running limine-update..."
+  sudo limine-update
+
+  # Clean up archinstall-created Limine boot entries
+  if [[ -n "$is_efi" ]] && command -v efibootmgr &>/dev/null; then
+    while IFS= read -r bootnum; do
+      sudo efibootmgr -b "$bootnum" -B >/dev/null 2>&1
+    done < <(efibootmgr | grep -E "^Boot[0-9]{4}\*? Arch Linux Limine" | sed 's/^Boot\([0-9]\{4\}\).*/\1/')
+    log_info "Cleaned up old EFI boot entries"
+  fi
 
   log_success "Snapper configured with Limine"
 }
