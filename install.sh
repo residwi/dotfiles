@@ -759,16 +759,6 @@ setup_symlinks() {
     systemctl --user daemon-reload
   fi
 
-  # XDG terminals list
-  [[ -f "$DOTFILES_DIR/config/$OS/xdg-terminals.list" ]] &&
-    backup_and_symlink "$DOTFILES_DIR/config/$OS/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
-
-  # UWSM environment
-  [[ -f "$DOTFILES_DIR/config/$OS/uwsm/env" ]] && {
-    mkdir -p "$HOME/.config/uwsm"
-    backup_and_symlink "$DOTFILES_DIR/config/$OS/uwsm/env" "$HOME/.config/uwsm/env"
-  }
-
   # Desktop files
   if [[ -d "$DOTFILES_DIR/config/$OS/applications" ]]; then
     mkdir -p "$HOME/.local/share/applications"
