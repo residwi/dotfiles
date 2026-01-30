@@ -19,6 +19,7 @@ lazygit
 btop
 docker
 docker-compose
+tree-sitter-cli
 
 # GTK theming
 gnome-themes-extra
