@@ -1,4 +1,4 @@
-stylesheets: ["../themes/catppuccin-mocha/hyprland-preview-share-picker.css"]
+stylesheets: ["../theme/current/hyprland-preview-share-picker.css"]
 default_page: windows
 hide_token_restore: true
 

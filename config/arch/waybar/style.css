@@ -1,4 +1,4 @@
-@import "../themes/catppuccin-mocha/waybar.css";
+@import "../theme/current/waybar.css";
 
 * {
   background-color: @background;
