@@ -1,3 +1,3 @@
 [submodule "nvim"]
 	path = config/common/nvim
-	url = git@github.com:residwi/nvim-configs.git
+	url = https://github.com/residwi/nvim-configs.git

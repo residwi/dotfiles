@@ -1017,6 +1017,13 @@ main() {
     exit 0
   }
 
+  # Initialize submodules (e.g., nvim config)
+  if [[ -f "$DOTFILES_DIR/.gitmodules" ]]; then
+    log_info "Initializing git submodules..."
+    git -C "$DOTFILES_DIR" submodule update --init --recursive
+    log_success "Git submodules initialized"
+  fi
+
   preflight
   install_packages
   setup_symlinks
