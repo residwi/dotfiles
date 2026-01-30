@@ -152,9 +152,7 @@ remove_packages() {
 
 remove_omarchy_webapps() {
   [[ "$OS" != "arch" ]] && return
-
-  local webapps_dir="$HOME/.local/share/applications"
-  [[ ! -d "$webapps_dir" ]] && return
+  command -v omarchy-webapp-remove &>/dev/null || return
 
   local webapps_to_remove=(
     "Discord"
@@ -171,31 +169,12 @@ remove_omarchy_webapps() {
     "Zoom"
   )
 
-  local found_webapps=()
-  for webapp in "${webapps_to_remove[@]}"; do
-    for file in "${webapps_dir}"/chrome-*-Default.desktop; do
-      [[ -f "$file" ]] || continue
-      if grep -q "^Name=$webapp$" "$file" 2>/dev/null; then
-        found_webapps+=("$file")
-      fi
-    done
-  done
-
-  [[ ${#found_webapps[@]} -eq 0 ]] && return
-
   echo ""
-  log_info "Found omarchy webapps to remove:"
-  for file in "${found_webapps[@]}"; do
-    local name
-    name=$(grep "^Name=" "$file" | cut -d= -f2)
-    echo "  - $name"
+  for webapp in "${webapps_to_remove[@]}"; do
+    if omarchy-webapp-remove "$webapp" 2>/dev/null; then
+      log_success "Removed webapp: $webapp"
+    fi
   done
-
-  if prompt_confirm "Remove these webapps?"; then
-    for file in "${found_webapps[@]}"; do
-      rm -f "$file" && log_success "Removed: $(basename "$file")"
-    done
-  fi
 }
 
 setup_symlinks() {
@@ -218,11 +197,6 @@ setup_symlinks() {
       fi
     done
   fi
-
-  # zsh files (zshrc -> ~/.zshrc, zprofile -> ~/.zprofile)
-  local zsh_dir="$DOTFILES_DIR/zsh"
-  [[ -f "$zsh_dir/zshrc" ]] && backup_and_symlink "$zsh_dir/zshrc" "$HOME/.zshrc"
-  [[ -f "$zsh_dir/zprofile" ]] && backup_and_symlink "$zsh_dir/zprofile" "$HOME/.zprofile"
 
   # OS-specific config symlinks
   if [[ -d "$DOTFILES_DIR/config/$OS" ]]; then
@@ -270,6 +244,11 @@ setup_shell() {
   fi
 
   [[ -d "$HOME/.oh-my-zsh" ]] && setup_zsh_plugins
+
+  # Symlink zsh files after Oh My Zsh installation (it creates its own .zshrc)
+  local zsh_dir="$DOTFILES_DIR/zsh"
+  [[ -f "$zsh_dir/zshrc" ]] && backup_and_symlink "$zsh_dir/zshrc" "$HOME/.zshrc"
+  [[ -f "$zsh_dir/zprofile" ]] && backup_and_symlink "$zsh_dir/zprofile" "$HOME/.zprofile"
 
   if [[ "$SHELL" != *"zsh"* ]] && prompt_confirm "Set zsh as default shell?"; then
     local zsh_path
