@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# Get battery percentage
-
-upower -i $(upower -e | grep 'BAT') 2>/dev/null | grep -E "percentage" | awk '{print $2}' | tr -d '%'

@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Pop window out - float and pin to all workspaces
-
-set -euo pipefail
-
-hyprctl dispatch togglefloating
-hyprctl dispatch pin

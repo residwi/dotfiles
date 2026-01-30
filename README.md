@@ -1,97 +1,73 @@
 # Dotfiles
 
-Personal dotfiles for macOS and Arch Linux with Hyprland.
+My personal dotfiles for **macOS** and **Arch Linux** (with [Omarchy](https://github.com/basecamp/omarchy)).
 
-## Quick Start
+## Requirements
+
+- **macOS**: Homebrew (installer will offer to install it)
+- **Arch**: [Omarchy](https://github.com/basecamp/omarchy) installed first
+
+## Quick start
 
 ```bash
-git clone https://github.com/residwi/dotfiles.git ~/dotfiles
+git clone --recurse-submodules https://github.com/residwi/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
+
+The installer is interactive and will prompt before making changes.
 
 ## Structure
 
 ```
 dotfiles/
-├── install.sh              # Main installation script
+├── install.sh
 ├── packages/
-│   ├── Brewfile            # macOS packages (Homebrew)
-│   ├── arch.pacman         # Arch Linux packages (official repos)
-│   └── arch.aur            # Arch Linux packages (AUR)
+│   ├── Brewfile          # macOS (Homebrew)
+│   └── arch/
+│       ├── add           # packages to install on top of omarchy
+│       └── remove        # omarchy defaults to remove
 ├── config/
-│   ├── common/             # Shared configs (both OS)
-│   │   ├── gitconfig
-│   │   ├── gitignore
-│   │   ├── tmux.conf
-│   │   ├── aliases
-│   │   └── zsh/            # Zsh configuration
-│   ├── macos/              # macOS-specific
-│   │   └── ghostty/
-│   └── arch/               # Arch Linux-specific
-│       ├── hypr/           # Hyprland configs
-│       ├── waybar/
-│       ├── mako/
-│       ├── hypridle/
-│       ├── hyprlock/
-│       ├── hyprpaper/
-│       ├── walker/
-│       ├── btop/
-│       ├── lazygit/
-│       └── themes/         # Theme assets
-│           └── catppuccin-mocha/
-├── bin/
-│   └── arch/               # Arch-specific commands
-│       ├── screenshot
-│       ├── screenrecord
-│       ├── lock
-│       └── theme
-└── nvim/                   # Neovim config (git submodule)
+│   └── common/           # shared configs (both OS)
+│       ├── ghostty/
+│       ├── mise/
+│       ├── nvim/         # git submodule -> residwi/nvim-configs
+│       ├── tmux.conf
+│       ├── gitconfig, gitignore, aliases, editorconfig, ...
+├── bin/                  # utility scripts
+├── zsh/                  # zshrc, zprofile, path/env helpers
+└── tools/
+    └── compose.yaml      # local dev services (postgres, redis, etc.)
 ```
 
-## Features
+## How it works
 
 ### macOS
 
-- Homebrew packages via Brewfile
-- Ghostty terminal configuration
+Installs packages from `packages/Brewfile`, symlinks configs, sets up zsh with oh-my-zsh.
 
 ### Arch Linux
 
-- Hyprland tiling window manager
-- Minimal keybindings
-- Theme system (catppuccin-mocha default)
-- NVIDIA/Intel GPU auto-detection
-- Services: sddm, docker, ufw, power-profiles-daemon
+Designed to run on top of [Omarchy](https://github.com/basecamp/omarchy), which provides the base Hyprland setup. This repo just customizes it:
 
-## Theme System
+- Installs extra packages (firefox, bitwarden)
+- Removes unwanted omarchy defaults (chromium, 1password, starship, etc.)
+- Removes unwanted omarchy webapps (Discord, Figma, etc.)
+- Symlinks shared configs
 
-Themes are located in `config/arch/themes/`. The active theme is symlinked to `~/.config/theme/current/`.
+### Symlinks
 
-Switch themes:
+| Source                 | Target            |
+| ---------------------- | ----------------- |
+| `config/common/<dir>`  | `~/.config/<dir>` |
+| `config/common/<file>` | `~/.<file>`       |
+| `zsh/zshrc`            | `~/.zshrc`        |
+| `zsh/zprofile`         | `~/.zprofile`     |
+
+## Neovim
+
+The nvim config is a git submodule pointing to [residwi/nvim-configs](https://github.com/residwi/nvim-configs). If you didn't clone with `--recurse-submodules`:
 
 ```bash
-~/.local/bin/theme set catppuccin-mocha
-hyprctl reload
+git submodule update --init --recursive
 ```
-
-## Key Bindings (Arch/Hyprland)
-
-| Binding               | Action                |
-| --------------------- | --------------------- |
-| `Super + Return`      | Terminal (Ghostty)    |
-| `Super + Space`       | App launcher (Walker) |
-| `Super + W`           | Close window          |
-| `Super + F`           | Fullscreen            |
-| `Super + T`           | Toggle floating       |
-| `Super + 1-0`         | Switch workspace      |
-| `Super + Shift + 1-0` | Move to workspace     |
-| `Super + L`           | Lock screen           |
-| `Print`               | Screenshot            |
-
-## Requirements
-
-- **macOS**: Homebrew (installer handles it)
-- **Arch**: limine bootloader, git, base-devel, yay
-
-Limine is required for btrfs snapshot rollback with snapper. Install it during Arch installation.

@@ -1,3 +1,0 @@
-paste = true
-paste_cmd = "wl-copy"
-paste_shortcut = "ctrl+shift+v"
