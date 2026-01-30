@@ -668,6 +668,35 @@ setup_arch_extras() {
   log_success "Arch extras configured"
 }
 
+setup_keyring() {
+  [[ "$OS" == "macos" ]] && return
+
+  local keyring_dir="$HOME/.local/share/keyrings"
+  if [[ -f "$keyring_dir/default" ]]; then
+    log_info "GNOME Keyring already configured, skipping"
+    return
+  fi
+
+  log_info "Setting up GNOME Keyring..."
+  mkdir -p "$keyring_dir"
+  chmod 700 "$keyring_dir"
+
+  cat >"$keyring_dir/Default_keyring.keyring" <<EOF
+[keyring]
+display-name=Default keyring
+ctime=$(date +%s)
+mtime=$(date +%s)
+lock-on-idle=false
+lock-after=false
+EOF
+  chmod 600 "$keyring_dir/Default_keyring.keyring"
+
+  echo "Default_keyring" >"$keyring_dir/default"
+  chmod 644 "$keyring_dir/default"
+
+  log_success "GNOME Keyring configured (auto-unlock enabled)"
+}
+
 setup_firewall() {
   [[ "$OS" != "arch" ]] && return
   echo ""
@@ -793,6 +822,7 @@ main() {
   install_packages
   setup_symlinks
   setup_arch_extras
+  setup_keyring
   setup_firewall
   setup_shell
   setup_theme
