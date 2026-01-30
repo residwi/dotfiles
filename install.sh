@@ -920,13 +920,15 @@ setup_firewall() {
     # Docker DNS (only if docker configured)
     if [[ -f /etc/docker/daemon.json ]]; then
       sudo ufw allow in proto udp from 172.16.0.0/12 to 172.17.0.1 port 53 comment 'docker-dns'
-      if command -v ufw-docker &>/dev/null; then
-        sudo ufw-docker install
-      fi
     fi
 
     sudo ufw --force enable
     sudo systemctl enable ufw
+
+    if [[ -f /etc/docker/daemon.json ]] && command -v ufw-docker &>/dev/null; then
+      sudo ufw-docker install
+    fi
+
     sudo ufw reload
     log_success "UFW firewall configured"
   fi
