@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Walker launcher - ensures Elephant and Walker services are running
+
+# Start Elephant if not running
+if ! pgrep -x elephant >/dev/null; then
+    setsid elephant &>/dev/null &
+fi
+
+# Start Walker service if not running
+if ! pgrep -f "walker --gapplication-service" >/dev/null; then
+    setsid walker --gapplication-service &>/dev/null &
+    sleep 0.1
+fi
+
+# Launch Walker with optional arguments
+exec walker "$@"
