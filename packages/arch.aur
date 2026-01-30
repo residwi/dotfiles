@@ -27,3 +27,6 @@ pinta
 
 # Launch terminal emulator from XDG wayland sessions
 xdg-terminal-exec
+
+# fix the Docker and UFW security flaw without disabling iptables
+ufw-docker-git
