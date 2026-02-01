@@ -1,4 +1,9 @@
+# Uncomment to profile zsh startup
+# zmodload zsh/zprof
+
 export DOTFILES_BASE="$HOME/dotfiles"
+
+source "$DOTFILES_BASE/zsh/oh-my-zsh"
 
 # Load core configs
 [[ -r "$DOTFILES_BASE/zsh/env.sh" ]] && source "$DOTFILES_BASE/zsh/env.sh"
@@ -9,10 +14,10 @@ for config in "$DOTFILES_BASE/zsh/tools"/*.sh(N); do
   [[ -r "$config" ]] && source "$config"
 done
 
-source "$DOTFILES_BASE/zsh/oh-my-zsh"
-
 [[ -f ~/.aliases ]] && source ~/.aliases
 
 # Load local overrides (these should override everything else)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local
+
+# zprof
