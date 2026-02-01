@@ -295,6 +295,35 @@ install_dev_tools() {
   mise install && log_success "Dev tools installed"
 }
 
+disable_screensaver() {
+  [[ "$OS" != "arch" ]] && return
+  command -v omarchy-toggle-screensaver &>/dev/null || return
+
+  log_info "Disabling screensaver..."
+
+  local state_file="$HOME/.local/state/omarchy/toggles/screensaver-off"
+  if [[ ! -f "$state_file" ]]; then
+    omarchy-toggle-screensaver
+    log_success "Screensaver disabled"
+  fi
+}
+
+disable_splash_boot() {
+  [[ "$OS" != "arch" ]] && return
+
+  local limine_conf="/etc/default/limine"
+  [[ ! -f "$limine_conf" ]] && return
+
+  # Check if splash is present
+  if grep -q 'KERNEL_CMDLINE.*splash' "$limine_conf"; then
+    echo ""
+    log_info "Removing splash from limine config..."
+    sudo sed -i 's/\(KERNEL_CMDLINE.*\) splash/\1/' "$limine_conf"
+    sudo limine-update
+    log_success "Plymouth splash disabled"
+  fi
+}
+
 print_summary() {
   echo -e "\n========================================\n${GREEN}Installation Complete!${NC}\n========================================"
   echo "OS: $OS | Log: $LOG_FILE"
@@ -326,6 +355,8 @@ main() {
   setup_symlinks
   install_mise
   install_dev_tools
+  disable_screensaver
+  disable_splash_boot
   setup_shell
   setup_nvim_plugins
   print_summary
