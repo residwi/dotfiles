@@ -75,6 +75,7 @@ detect_os() {
 }
 
 preflight() {
+  echo ""
   log_info "Running preflight checks..."
   OS=$(detect_os)
   log_info "Detected OS: $OS"
@@ -260,12 +261,38 @@ setup_shell() {
 
 setup_nvim_plugins() {
   command -v nvim &>/dev/null || return
+  echo ""
 
   if [[ -d "$HOME/.config/nvim" ]]; then
     log_info "Installing Neovim plugins..."
     nvim --headless "+Lazy! sync" +qa
     log_success "Neovim plugins installed"
   fi
+}
+
+install_mise() {
+  echo ""
+  log_info "Installing mise..."
+  if command -v mise &>/dev/null; then
+    log_success "mise already installed"
+    return
+  fi
+
+  if [[ "$OS" == "macos" ]]; then
+    brew install mise && log_success "mise installed"
+  elif [[ "$OS" == "arch" ]]; then
+    sudo pacman -S --needed --noconfirm mise && log_success "mise installed"
+  fi
+}
+
+install_dev_tools() {
+  command -v mise &>/dev/null || return
+
+  echo ""
+  log_info "Installing dev tools via mise..."
+
+  mise trust "$DOTFILES_DIR/config/common/mise/config.toml"
+  mise install && log_success "Dev tools installed"
 }
 
 print_summary() {
@@ -297,6 +324,8 @@ main() {
   remove_packages
   remove_omarchy_webapps
   setup_symlinks
+  install_mise
+  install_dev_tools
   setup_shell
   setup_nvim_plugins
   print_summary

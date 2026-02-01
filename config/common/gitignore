@@ -18,3 +18,4 @@ Thumbs.db
 # ignores version manager files
 .ruby-version
 .tools-versions
+mise.local.toml

@@ -73,7 +73,7 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  asdf
+  mise
   fzf
   docker-compose
   gcloud

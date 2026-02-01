@@ -1,4 +1,10 @@
 [settings]
-experimental = true
 always_keep_download = false
 always_keep_install = false
+
+[tools]
+node = "lts"
+python = "latest"
+ruby = { version = "latest", postinstall = "gem install rubocop ruby-lsp" }
+go = "latest"
+rust = "latest"
