@@ -205,11 +205,44 @@ setup_symlinks() {
       [[ -e "$item" ]] || continue
       local name
       name=$(basename "$item")
+
+      [[ "$OS" == "arch" && "$name" == "hypr" ]] && continue
+
       backup_and_symlink "$item" "$HOME/.config/$name"
     done
   fi
 
   log_success "Symlinks configured"
+}
+
+setup_hyprland() {
+  [[ "$OS" != "arch" ]] && return
+
+  if [[ -d "$DOTFILES_DIR/config/arch/hypr" ]]; then
+    log_info "Configuring Hyprland..."
+    for item in "$DOTFILES_DIR/config/arch/hypr"/*; do
+      [[ -e "$item" ]] || continue
+
+      local name
+      name=$(basename "$item")
+      local target="$HOME/.config/hypr/$name"
+
+      mkdir -p "$(dirname "$target")"
+
+      if [[ -e "$target" && ! -L "$target" ]]; then
+        local backup_path="${BACKUP_DIR}${target#"$HOME"}"
+        mkdir -p "$(dirname "$backup_path")"
+        mv "$target" "$backup_path"
+        log_info "Backed up: $target -> $backup_path"
+      elif [[ -L "$target" ]]; then
+        rm "$target"
+      fi
+
+      cp -r "$item" "$target"
+
+      log_success "Copied: $item -> $target"
+    done
+  fi
 }
 
 setup_zsh_plugins() {
@@ -357,6 +390,7 @@ main() {
   install_dev_tools
   disable_screensaver
   disable_splash_boot
+  setup_hyprland
   setup_shell
   setup_nvim_plugins
   print_summary
