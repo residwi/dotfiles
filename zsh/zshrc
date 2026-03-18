@@ -14,10 +14,10 @@ for config in "$DOTFILES_BASE/zsh/tools"/*.sh(N); do
   [[ -r "$config" ]] && source "$config"
 done
 
-[[ -f ~/.aliases ]] && source ~/.aliases
+[[ -f ~/.aliases ]] && source ~/.aliases || true
 
 # Load local overrides (these should override everything else)
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-[[ -f ~/.aliases.local ]] && source ~/.aliases.local
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local || true
+[[ -f ~/.aliases.local ]] && source ~/.aliases.local || true
 
 # zprof
