@@ -2,6 +2,9 @@
 always_keep_download = false
 always_keep_install = false
 
+[settings.ruby]
+compile = false # Try precompiled binaries first, fall back to compiling if unavailable (will be default in 2026.8.0) https://mise.jdx.dev/configuration/settings.html#ruby.compile
+
 [tools]
 node = "lts"
 python = "latest"
