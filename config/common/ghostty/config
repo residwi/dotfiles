@@ -31,5 +31,4 @@ macos-titlebar-style = tabs
 # Custom Keybinds (super == command key on mac)
 # global means overrides all other apps
 keybind = cmd+e=toggle_quick_terminal
-keybind = cmd+f=write_scrollback_file:open
 keybind = shift+enter=text:\x1b\r
