@@ -17,6 +17,7 @@ luarocks
 libpq-devel
 libyaml-devel
 openssl-devel
+zlib-devel
 
 # Container runtime (Docker CE repo)
 docker-ce
