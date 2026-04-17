@@ -129,8 +129,7 @@ setup_fedora_repos() {
   sudo dnf copr enable -y jdxcode/mise
   sudo dnf copr enable -y scottames/ghostty
 
-  sudo dnf config-manager addrepo \
-    --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+  sudo dnf config-manager addrepo --overwrite --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
 
   log_success "Fedora repositories configured"
 }
