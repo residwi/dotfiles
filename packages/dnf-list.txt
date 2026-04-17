@@ -1,0 +1,29 @@
+# Shell / terminal
+zsh
+tmux
+ghostty
+
+# Core dev
+neovim
+ripgrep
+fd-find
+fzf
+jq
+tree
+mise
+luarocks
+
+# Build / libs
+libpq-devel
+libyaml-devel
+openssl-devel
+
+# Container runtime (Docker CE repo)
+docker-ce
+docker-ce-cli
+containerd.io
+docker-buildx-plugin
+docker-compose-plugin
+
+# Fonts
+jetbrains-mono-fonts

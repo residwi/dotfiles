@@ -69,7 +69,15 @@ backup_and_symlink() {
 detect_os() {
   case "$(uname -s)" in
   Darwin) echo "macos" ;;
-  Linux) [[ -f /etc/arch-release ]] && echo "arch" || echo "linux" ;;
+  Linux)
+    if [[ -f /etc/os-release ]]; then
+      # shellcheck source=/dev/null
+      . /etc/os-release
+      echo "$ID"
+    else
+      echo "unknown"
+    fi
+    ;;
   *) echo "unknown" ;;
   esac
 }
@@ -80,8 +88,8 @@ preflight() {
   OS=$(detect_os)
   log_info "Detected OS: $OS"
 
-  [[ "$OS" == "unknown" || "$OS" == "linux" ]] && {
-    log_error "Unsupported OS. This script only supports macOS and Arch Linux (with Omarchy)."
+  [[ "$OS" == "unknown" ]] && {
+    log_error "Unsupported OS. This script only supports macOS and Fedora Linux."
     exit 1
   }
 
@@ -96,15 +104,35 @@ preflight() {
         exit 1
       fi
     fi
-  elif [[ "$OS" == "arch" ]]; then
-    if [[ ! -d "$HOME/.local/share/omarchy" ]]; then
-      log_error "Omarchy not found. Install it first: https://github.com/basecamp/omarchy"
+  elif [[ "$OS" == "fedora" ]]; then
+    if ! command -v dnf &>/dev/null; then
+      log_error "dnf not found. Is this Fedora?"
       exit 1
     fi
     log_info "Some operations require sudo privileges"
     sudo -v
+  else
+    log_error "Unsupported OS '$OS'. This script only supports macOS and Fedora Linux."
+    exit 1
   fi
   log_success "Preflight checks passed"
+}
+
+setup_fedora_repos() {
+  [[ "$OS" != "fedora" ]] && return
+
+  echo ""
+  log_info "Setting up Fedora repositories..."
+
+  sudo dnf install -y dnf-plugins-core
+
+  sudo dnf copr enable -y jdxcode/mise
+  sudo dnf copr enable -y scottames/ghostty
+
+  sudo dnf config-manager addrepo \
+    --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+
+  log_success "Fedora repositories configured"
 }
 
 install_packages() {
@@ -116,66 +144,17 @@ install_packages() {
     else
       log_warn "No packages/Brewfile found, skipping"
     fi
-  elif [[ "$OS" == "arch" ]]; then
-    local add_file="$DOTFILES_DIR/packages/arch/add"
-
-    if [[ -f "$add_file" ]]; then
+  elif [[ "$OS" == "fedora" ]]; then
+    local list_file="$DOTFILES_DIR/packages/dnf-list.txt"
+    if [[ -f "$list_file" ]]; then
       local packages
-      packages=$(grep -v '^#' "$add_file" | grep -v '^$' | tr '\n' ' ')
+      packages=$(grep -v '^#' "$list_file" | grep -v '^$' | tr '\n' ' ')
       # shellcheck disable=SC2086
-      [[ -n "$packages" ]] && yay -S --needed --noconfirm $packages && log_success "Packages installed"
+      [[ -n "$packages" ]] && sudo dnf install -y $packages && log_success "Packages installed"
+    else
+      log_warn "No packages/dnf-list.txt found, skipping"
     fi
   fi
-}
-
-remove_packages() {
-  [[ "$OS" != "arch" ]] && return
-
-  local remove_file="$DOTFILES_DIR/packages/arch/remove"
-  [[ ! -f "$remove_file" ]] && return
-
-  local packages_to_remove=()
-  while IFS= read -r pkg || [[ -n "$pkg" ]]; do
-    [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
-    if pacman -Qi "$pkg" &>/dev/null; then
-      packages_to_remove+=("$pkg")
-    fi
-  done <"$remove_file"
-
-  [[ ${#packages_to_remove[@]} -eq 0 ]] && return
-
-  echo ""
-  log_info "Found installed packages to remove: ${packages_to_remove[*]}"
-  if prompt_confirm "Remove these packages?"; then
-    sudo pacman -Rns --noconfirm "${packages_to_remove[@]}" && log_success "Packages removed"
-  fi
-}
-
-remove_omarchy_webapps() {
-  [[ "$OS" != "arch" ]] && return
-  command -v omarchy-webapp-remove &>/dev/null || return
-
-  local webapps_to_remove=(
-    "Discord"
-    "Figma"
-    "Fizzy"
-    "Google Contacts"
-    "Google Maps"
-    "Google Messages"
-    "Google Photos"
-    "HEY"
-    "WhatsApp"
-    "X"
-    "YouTube"
-    "Zoom"
-  )
-
-  echo ""
-  for webapp in "${webapps_to_remove[@]}"; do
-    if omarchy-webapp-remove "$webapp" 2>/dev/null; then
-      log_success "Removed webapp: $webapp"
-    fi
-  done
 }
 
 setup_symlinks() {
@@ -183,9 +162,8 @@ setup_symlinks() {
   log_info "Setting up symlinks..."
   mkdir -p "$BACKUP_DIR"
 
-  # config/common/ symlinks (files -> ~/.file, dirs -> ~/.config/dir)
-  if [[ -d "$DOTFILES_DIR/config/common" ]]; then
-    for item in "$DOTFILES_DIR/config/common"/*; do
+  if [[ -d "$DOTFILES_DIR/config" ]]; then
+    for item in "$DOTFILES_DIR/config"/*; do
       [[ -e "$item" ]] || continue
 
       local name
@@ -199,50 +177,7 @@ setup_symlinks() {
     done
   fi
 
-  # OS-specific config symlinks
-  if [[ -d "$DOTFILES_DIR/config/$OS" ]]; then
-    for item in "$DOTFILES_DIR/config/$OS"/*; do
-      [[ -e "$item" ]] || continue
-      local name
-      name=$(basename "$item")
-
-      [[ "$OS" == "arch" && "$name" == "hypr" ]] && continue
-
-      backup_and_symlink "$item" "$HOME/.config/$name"
-    done
-  fi
-
   log_success "Symlinks configured"
-}
-
-setup_hyprland() {
-  [[ "$OS" != "arch" ]] && return
-
-  if [[ -d "$DOTFILES_DIR/config/arch/hypr" ]]; then
-    log_info "Configuring Hyprland..."
-    for item in "$DOTFILES_DIR/config/arch/hypr"/*; do
-      [[ -e "$item" ]] || continue
-
-      local name
-      name=$(basename "$item")
-      local target="$HOME/.config/hypr/$name"
-
-      mkdir -p "$(dirname "$target")"
-
-      if [[ -e "$target" && ! -L "$target" ]]; then
-        local backup_path="${BACKUP_DIR}${target#"$HOME"}"
-        mkdir -p "$(dirname "$backup_path")"
-        mv "$target" "$backup_path"
-        log_info "Backed up: $target -> $backup_path"
-      elif [[ -L "$target" ]]; then
-        rm "$target"
-      fi
-
-      cp -r "$item" "$target"
-
-      log_success "Copied: $item -> $target"
-    done
-  fi
 }
 
 setup_zsh_plugins() {
@@ -313,8 +248,9 @@ install_mise() {
 
   if [[ "$OS" == "macos" ]]; then
     brew install mise && log_success "mise installed"
-  elif [[ "$OS" == "arch" ]]; then
-    sudo pacman -S --needed --noconfirm mise && log_success "mise installed"
+  elif [[ "$OS" == "fedora" ]]; then
+    log_warn "mise not found; it should have been installed via dnf. Re-running install..."
+    sudo dnf install -y mise && log_success "mise installed"
   fi
 }
 
@@ -324,37 +260,33 @@ install_dev_tools() {
   echo ""
   log_info "Installing dev tools via mise..."
 
-  mise trust "$DOTFILES_DIR/config/common/mise/config.toml"
+  mise trust "$DOTFILES_DIR/config/mise/config.toml"
   mise install && log_success "Dev tools installed"
 }
 
-disable_screensaver() {
-  [[ "$OS" != "arch" ]] && return
-  command -v omarchy-toggle-screensaver &>/dev/null || return
+setup_docker() {
+  [[ "$OS" != "fedora" ]] && return
+  command -v docker &>/dev/null || return
 
-  log_info "Disabling screensaver..."
+  echo ""
+  log_info "Configuring Docker..."
 
-  local state_file="$HOME/.local/state/omarchy/toggles/screensaver-off"
-  if [[ ! -f "$state_file" ]]; then
-    omarchy-toggle-screensaver
-    log_success "Screensaver disabled"
+  sudo systemctl enable --now docker
+
+  if ! getent group docker &>/dev/null; then
+    sudo groupadd docker
   fi
-}
+  sudo usermod -aG docker "$USER"
 
-disable_splash_boot() {
-  [[ "$OS" != "arch" ]] && return
-
-  local limine_conf="/etc/default/limine"
-  [[ ! -f "$limine_conf" ]] && return
-
-  # Check if splash is present
-  if grep -q 'KERNEL_CMDLINE.*splash' "$limine_conf"; then
-    echo ""
-    log_info "Removing splash from limine config..."
-    sudo sed -i 's/\(KERNEL_CMDLINE.*\) splash/\1/' "$limine_conf"
-    sudo limine-update
-    log_success "Plymouth splash disabled"
+  if [[ -d "$HOME/.docker" ]]; then
+    sudo chown "$USER":"$USER" "$HOME/.docker" -R
+    sudo chmod g+rwx "$HOME/.docker" -R
   fi
+
+  log_info "Installing lazydocker..."
+  curl -s https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+
+  log_success "Docker configured (re-login or run 'newgrp docker' to use without sudo)"
 }
 
 print_summary() {
@@ -362,6 +294,7 @@ print_summary() {
   echo "OS: $OS | Log: $LOG_FILE"
   [[ -d "$BACKUP_DIR" && "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]] && echo "Backups: $BACKUP_DIR"
   echo -e "\nNext steps:\n  1. Restart terminal or: source ~/.zshrc"
+  [[ "$OS" == "fedora" ]] && echo "  2. Re-login or run 'newgrp docker' to use Docker without sudo"
   echo "=== Install completed at $(date) ===" >>"$LOG_FILE"
 }
 
@@ -382,15 +315,12 @@ main() {
   fi
 
   preflight
+  setup_fedora_repos
   install_packages
-  remove_packages
-  remove_omarchy_webapps
   setup_symlinks
   install_mise
   install_dev_tools
-  disable_screensaver
-  disable_splash_boot
-  setup_hyprland
+  setup_docker
   setup_shell
   setup_nvim_plugins
   print_summary

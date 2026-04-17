@@ -1,11 +1,11 @@
 # Dotfiles
 
-My personal dotfiles for **macOS** and **Arch Linux** (with [Omarchy](https://github.com/basecamp/omarchy)).
+My personal dotfiles for **macOS** and **Fedora Linux**.
 
 ## Requirements
 
 - **macOS**: Homebrew (installer will offer to install it)
-- **Arch**: [Omarchy](https://github.com/basecamp/omarchy) installed first
+- **Fedora**: Fedora Desktop Workstation (installer handles all repo setup)
 
 ## Quick start
 
@@ -24,16 +24,13 @@ dotfiles/
 ├── install.sh
 ├── packages/
 │   ├── Brewfile          # macOS (Homebrew)
-│   └── arch/
-│       ├── add           # packages to install on top of omarchy
-│       └── remove        # omarchy defaults to remove
-├── config/
-│   └── common/           # shared configs (both OS)
-│       ├── ghostty/
-│       ├── mise/
-│       ├── nvim/         # git submodule -> residwi/nvim-configs
-│       ├── tmux.conf
-│       ├── gitconfig, gitignore, aliases, editorconfig, ...
+│   └── dnf-list.txt      # Fedora (dnf)
+├── config/               # shared configs (all platforms)
+│   ├── ghostty/
+│   ├── mise/
+│   ├── nvim/             # git submodule -> residwi/nvim-configs
+│   ├── tmux.conf
+│   ├── gitconfig, gitignore, aliases, editorconfig, ...
 ├── bin/                  # utility scripts
 ├── zsh/                  # zshrc, zprofile, path/env helpers
 └── tools/
@@ -46,23 +43,24 @@ dotfiles/
 
 Installs packages from `packages/Brewfile`, symlinks configs, sets up zsh with oh-my-zsh.
 
-### Arch Linux
+### Fedora Linux
 
-Designed to run on top of [Omarchy](https://github.com/basecamp/omarchy), which provides the base Hyprland setup. This repo just customizes it:
+Enables external repositories (Docker CE repo, ghostty COPR, mise COPR), then installs packages from `packages/dnf-list.txt` via dnf.
 
-- Installs extra packages (firefox, bitwarden)
-- Removes unwanted omarchy defaults (chromium, 1password, starship, etc.)
-- Removes unwanted omarchy webapps (Discord, Figma, etc.)
-- Symlinks shared configs
+After install, enable the Docker service:
+
+```bash
+sudo systemctl enable --now docker
+```
 
 ### Symlinks
 
-| Source                 | Target            |
-| ---------------------- | ----------------- |
-| `config/common/<dir>`  | `~/.config/<dir>` |
-| `config/common/<file>` | `~/.<file>`       |
-| `zsh/zshrc`            | `~/.zshrc`        |
-| `zsh/zprofile`         | `~/.zprofile`     |
+| Source              | Target            |
+| ------------------- | ----------------- |
+| `config/<dir>`      | `~/.config/<dir>` |
+| `config/<file>`     | `~/.<file>`       |
+| `zsh/zshrc`         | `~/.zshrc`        |
+| `zsh/zprofile`      | `~/.zprofile`     |
 
 ## Neovim
 

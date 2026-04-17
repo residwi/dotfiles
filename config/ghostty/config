@@ -33,5 +33,5 @@ macos-titlebar-style = tabs
 keybind = cmd+e=toggle_quick_terminal
 keybind = shift+enter=text:\x1b\r
 
-# Fix general slow performance on Linux with hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+# Fix general slow performance on Linux (https://github.com/ghostty-org/ghostty/discussions/3224)
 async-backend = epoll
