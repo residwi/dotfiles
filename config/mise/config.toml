@@ -11,3 +11,4 @@ python = "latest"
 ruby = { version = "latest", postinstall = "gem install rubocop ruby-lsp" }
 go = "latest"
 rust = "latest"
+bun = "latest"
