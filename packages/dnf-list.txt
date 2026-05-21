@@ -28,3 +28,6 @@ docker-compose-plugin
 
 # Fonts
 jetbrains-mono-fonts
+
+# OTP tools
+oathtool
