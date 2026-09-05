@@ -1,0 +1,93 @@
+# dcg config — verified key-by-key against dcg 0.14.0 source
+# (github.com/Dicklesworthstone/destructive_command_guard @ v0.14.0).
+# Every section below has a confirmed production consumer.
+
+[general]
+color = "auto"
+verbose = false
+# Appends every block/warn; `dcg stats` reads this file.
+log_file = "~/.local/share/dcg/blocked.log"
+# Re-adds the hook if Claude Code rewrites settings.json mid-session.
+self_heal_hook = true
+
+#──────────────────────────────────────────────────────────────
+# WHAT IS ENFORCED
+#──────────────────────────────────────────────────────────────
+
+[packs]
+# core.* and system.disk are on implicitly. Add what this machine touches.
+enabled = ["containers.docker", "package_managers"]
+disabled = []
+
+[policy]
+# Unset = severity defaults: critical/high deny, medium warn, low log.
+
+[policy.rules]
+# Per-rule mode: "deny" | "warn" | "log" | "allow".
+# Do NOT use "ask" — it still hard-blocks in Claude Code on 0.14.0.
+# "core.git:stash-drop" = "warn"
+
+#──────────────────────────────────────────────────────────────
+# TARGETED EXCEPTIONS
+# Every pattern is ^...$ anchored.
+#
+# On a compound command dcg splits on && / ; / | and requires EVERY segment
+# to be independently allowed (check_allow, src/config.rs:3700, issue #340).
+# So a whole-string `cd x && rm y` pattern is never consulted — the `cd`
+# needs its own entry below, and each destructive segment still has to earn
+# its own match. One safe segment can never vouch for a destructive one.
+#──────────────────────────────────────────────────────────────
+
+[overrides]
+allow = [
+  # Bare `cd <path>` — non-destructive, and needed as its own segment because
+  # agent harnesses reset cwd on every call so nearly everything arrives as
+  # `cd <repo> && <cmd>`. No shell metacharacters in the target.
+  '^cd [A-Za-z0-9._/@-]+$',
+
+  # git: post-merge cleanup, topic branches only.
+  # main / master / develop / release cannot match the prefix list.
+  '^git branch -(?:d|D|-delete) +(?:feature|feat|fix|bugfix|hotfix|chore|refactor|docs|test|exp)/[A-Za-z0-9._\-/]+$',
+  '^git branch --merged\b',
+
+  # rm: rebuildable artifact and dependency dirs, relative paths only.
+  '^rm -rf? (?:(?:\./)?(?:node_modules|dist|build|out|target|coverage|\.next|\.nuxt|\.svelte-kit|\.turbo|\.cache|\.parcel-cache|__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache|\.gradle)(?:/[A-Za-z0-9_][A-Za-z0-9._\-]*)*/? *)+$',
+
+  # find -delete: generated files only.
+  '^find \. -name .\*\.(?:pyc|pyo|orig|rej|class). -delete$',
+]
+
+block = [
+  # Repo-specific hard blocks, e.g.:
+  # { pattern = "deploy\\.sh.*--prod", reason = "prod deploys are manual" },
+]
+
+#──────────────────────────────────────────────────────────────
+# HISTORY — powers `dcg history stats` and `dcg suggest-allowlist`
+#──────────────────────────────────────────────────────────────
+
+[history]
+enabled = true
+# XDG state dir. Without this an existing history.db beside config.toml
+# wins over the XDG default, so the path is pinned explicitly.
+database_path = "~/.local/state/dcg/history.db"
+redaction_mode = "pattern"
+retention_days = 90
+max_size_mb = 500
+
+[allowlist]
+auto_prune_expired = false
+
+[interactive]
+# Keep off: agent traffic is non-TTY, prompts would hang.
+enabled = false
+
+#──────────────────────────────────────────────────────────────
+# DO NOT ADD [git_awareness] — dead config in 0.14.0.
+# apply_branch_strictness() (src/evaluator.rs:24978) has no production
+# caller; every call site is inside #[cfg(test)] (line 25061 onward).
+# The section parses, `dcg config` reports the file fully loaded with
+# zero warnings, and nothing changes. Verified empirically: a HIGH rule
+# (core.git:checkout-discard) denies identically on main and on
+# feature/x under relaxed_strictness = "critical".
+#──────────────────────────────────────────────────────────────
