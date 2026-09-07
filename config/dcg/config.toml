@@ -47,8 +47,18 @@ allow = [
 
   # git: post-merge cleanup, topic branches only.
   # main / master / develop / release cannot match the prefix list.
-  '^git branch -(?:d|D|-delete) +(?:feature|feat|fix|bugfix|hotfix|chore|refactor|docs|test|exp)/[A-Za-z0-9._\-/]+$',
+  '^git branch -(?:d|D|-delete) +(?:feature|feat|fix|bugfix|hotfix|chore|refactor|docs|test|exp|backup|wip)/[A-Za-z0-9._\-/]+$',
   '^git branch --merged\b',
+
+  # Read-only companions. Once ONE segment trips a rule, check_allow demands
+  # an entry for EVERY segment, so a trailing `git status` vetoes an
+  # otherwise-allowed topic-branch delete. These commands carry no rule of
+  # their own; the entries exist only to stop a harmless tail from vetoing
+  # the chain. >, <, ` and $ excluded — a redirect or command substitution
+  # must earn its own review.
+  '^git (?:status|log|show|diff|shortlog|describe|rev-parse|rev-list|reflog|blame|tag -l|remote -v|stash list|branch (?:-v{1,2}|-a|-r|--list|--contains|--no-merged))[^><`$]*$',
+  '^(?:echo|printf) [^><`$]*$',
+  '^(?:wc|head|tail|sort|uniq|nl|cut|column)(?: [^><`$]*)?$',
 
   # rm: rebuildable artifact and dependency dirs, relative paths only.
   '^rm -rf? (?:(?:\./)?(?:node_modules|dist|build|out|target|coverage|\.next|\.nuxt|\.svelte-kit|\.turbo|\.cache|\.parcel-cache|__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache|\.gradle)(?:/[A-Za-z0-9_][A-Za-z0-9._\-]*)*/? *)+$',
