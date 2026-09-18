@@ -12,6 +12,7 @@ jq
 tree
 mise
 luarocks
+git-delta
 
 # Build / libs
 libpq-devel
