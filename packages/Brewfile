@@ -1,4 +1,3 @@
-tap "dicklesworthstone/tap"
 # Memory upgrade for your coding agent
 brew "beads"
 # Terminal-based UI for the Beads issue tracker
@@ -87,8 +86,6 @@ brew "vips"
 brew "watch"
 # Internet file retriever
 brew "wget"
-# Destructive Command Guard - Safety rails for AI coding agents
-brew "dicklesworthstone/tap/dcg", trusted: true
 # Privacy-focused app for managing your finances
 cask "actual"
 # Command-line tools for building and debugging Android apps
