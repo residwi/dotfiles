@@ -179,6 +179,18 @@ setup_symlinks() {
   log_success "Symlinks configured"
 }
 
+setup_gnupg() {
+  # pinentry-mac is macOS-only; Fedora keeps the distro's default pinentry
+  [[ "$OS" != "macos" ]] && return
+
+  echo ""
+  log_info "Setting up GnuPG agent..."
+  # gpg warns about unsafe permissions unless the homedir is private
+  mkdir -p "$HOME/.gnupg"
+  chmod 700 "$HOME/.gnupg"
+  backup_and_symlink "$DOTFILES_DIR/gnupg/gpg-agent.conf" "$HOME/.gnupg/gpg-agent.conf"
+}
+
 setup_zsh_plugins() {
   local plugins_dir="$HOME/.oh-my-zsh/custom/plugins"
   local plugins=(
@@ -314,6 +326,7 @@ main() {
   setup_fedora_repos
   install_packages
   setup_symlinks
+  setup_gnupg
   install_mise
   install_dev_tools
   setup_docker

@@ -32,6 +32,7 @@ dotfiles/
 │   ├── tmux.conf
 │   ├── gitconfig, gitignore, aliases, editorconfig, ...
 ├── bin/                  # utility scripts
+├── gnupg/                # gpg-agent.conf (macOS: pinentry-mac, SSH support)
 ├── zsh/                  # zshrc, zprofile, path/env helpers
 └── tools/
     └── compose.yaml      # local dev services (postgres, redis, etc.)
@@ -55,6 +56,7 @@ Enables external repositories (Docker CE repo, ghostty COPR, mise COPR), then in
 | `config/<file>`     | `~/.<file>`       |
 | `zsh/zshrc`         | `~/.zshrc`        |
 | `zsh/zprofile`      | `~/.zprofile`     |
+| `gnupg/gpg-agent.conf` | `~/.gnupg/gpg-agent.conf` (macOS only) |
 
 ## Neovim
 
