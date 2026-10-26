@@ -1,12 +1,13 @@
 services:
   mysqldb:
-    image: mysql:latest
+    # 9.7 LTS; MySQL cannot skip an LTS series, so the old 8.0 data stays in database/mysql/data
+    image: mysql:9.7
     environment:
       MYSQL_ROOT_PASSWORD: secret
     ports:
       - "3306:3306"
     volumes:
-      - "${DEVELOPMENT_TOOLS_PATH}/database/mysql/data:/var/lib/mysql"
+      - "${DEVELOPMENT_TOOLS_PATH}/database/mysql/9.7/data:/var/lib/mysql"
 
   postgresdb:
     # PG18 keeps data in /var/lib/postgresql/18/docker; 14/data stays beside it for pg_upgrade
