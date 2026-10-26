@@ -45,13 +45,7 @@ Installs packages from `packages/Brewfile`, symlinks configs, sets up zsh with o
 
 ### Fedora Linux
 
-Enables external repositories (Docker CE repo, ghostty COPR, mise COPR), then installs packages from `packages/dnf-list.txt` via dnf.
-
-After install, enable the Docker service:
-
-```bash
-sudo systemctl enable --now docker
-```
+Enables external repositories (Docker CE repo, ghostty COPR, mise COPR), then installs packages from `packages/dnf-list.txt` via dnf. The installer also enables the Docker service and adds you to the `docker` group.
 
 ### Symlinks
 
