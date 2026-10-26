@@ -7,7 +7,9 @@
 if [[ -n "$1" ]]; then
   port_num="$(lsof -ti:"$1")"
   if [[ -n "$port_num" ]]; then
-    kill -9 "$port_num"
+    # unquoted: lsof -t prints one PID per line, kill needs each as its own arg
+    # shellcheck disable=SC2086
+    kill -9 $port_num
   else
     echo "No process found on port $1"
   fi
