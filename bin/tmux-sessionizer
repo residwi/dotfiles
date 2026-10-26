@@ -10,12 +10,14 @@ if [ -z "$selected" ]; then
 	exit 0
 fi
 
-selected_name=$(basename "$selected" | tr . _)
+# tmux 3.7a+ keeps . and : in session names, but -t targets cannot address them
+selected_name=$(basename "$selected" | tr .: __)
 
+# "=" forces an exact match; plain -t foo also matches session foobar
 if [ -z "$TMUX" ]; then
 	tmux new-session -A -s "$selected_name" -c "$selected"
-elif ! tmux has-session -t "$selected_name" 2>/dev/null; then
-	tmux new-session -ds "$selected_name" -c "$selected"\; switch-client -t "$selected_name"
+elif ! tmux has-session -t "=$selected_name" 2>/dev/null; then
+	tmux new-session -ds "$selected_name" -c "$selected"\; switch-client -t "=$selected_name"
 else
-	tmux switch-client -t "$selected_name"
+	tmux switch-client -t "=$selected_name"
 fi
