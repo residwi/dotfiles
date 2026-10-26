@@ -1,3 +1,8 @@
+[settings]
+# Keep plain `go install` out of the Go version dir, so its binaries survive Go upgrades
+# and brew bundle stops seeing Go's own go/gofmt there. https://mise.jdx.dev/lang/go.html
+go.set_gobin = false
+
 [tools]
 node = "lts"
 python = "latest"
@@ -5,3 +10,9 @@ ruby = { version = "latest", postinstall = "gem install rubocop ruby-lsp" }
 go = "latest"
 rust = "latest"
 bun = "latest"
+
+# Go CLIs: prebuilt aqua releases where available, else built with the go: backend
+air = "latest"
+"aqua:pressly/goose" = "latest"
+"aqua:fe3dback/go-arch-lint" = "latest"
+"go:github.com/riverqueue/river/cmd/river" = "latest"
