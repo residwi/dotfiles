@@ -1,19 +1,15 @@
-# Memory upgrade for your coding agent
-brew "beads"
-# Terminal-based UI for the Beads issue tracker
-brew "beads_viewer"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
 # Pack, ship and run any application as a lightweight container
 brew "docker"
 # Docker CLI plugin for extended build capabilities with BuildKit
 brew "docker-buildx"
+# Platform keystore credential helper for Docker
+brew "docker-credential-helper"
 # YAML Parser
 brew "libyaml"
 # Embeddable SQL OLAP Database Management System
 brew "duckdb"
-# Cryptography and SSL/TLS Toolkit
-brew "openssl@3"
 # SDL2 compatibility layer that uses SDL3 behind the scenes
 brew "sdl2-compat"
 # Play, record, convert, and stream select audio and video codecs
@@ -22,11 +18,15 @@ brew "ffmpeg"
 brew "fzf"
 # Zstandard is a real-time compression algorithm
 brew "zstd"
+# TIFF library and utilities
+brew "libtiff"
 # GitHub command-line tool
 brew "gh"
 # Distributed revision control system
 brew "git"
-# A syntax-highlighting pager for git, diff, grep, rg --json, and blame output
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
+# Syntax-highlighting pager for git and diff output
 brew "git-delta"
 # GNU Privacy Guard (OpenPGP)
 brew "gnupg"
@@ -56,14 +56,14 @@ brew "luarocks"
 brew "mcp-toolbox"
 # Polyglot runtime manager (asdf rust clone)
 brew "mise"
-# Mock code autogenerator for Golang
-brew "mockery"
 # Ambitious Vim-fork focused on extensibility and agility
 brew "neovim"
 # Pinentry for GPG on Mac
 brew "pinentry-mac"
 # PDF rendering library (based on the xpdf-3.0 code base)
 brew "poppler"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.14"
 # Generic machine emulator and virtualizer
 brew "qemu"
 # Search tool like grep and The Silver Searcher
@@ -108,10 +108,14 @@ cask "gcloud-cli"
 cask "ghostty"
 # Free and open-source image editor
 cask "gimp"
+# 2D and 3D game engine
+cask "godot"
 # Web browser
 cask "google-chrome"
 # Replacement for Docker Desktop
 cask "orbstack"
+# Open source virtual/remote desktop application
+cask "rustdesk"
 # JDK from the Eclipse Foundation (Adoptium)
 cask "temurin"
 # Open-source code editor
@@ -161,7 +165,14 @@ vscode "vscodevim.vim"
 vscode "yzhang.markdown-all-in-one"
 vscode "zhuangtongfa.material-theme"
 vscode "zignd.html-css-class-completion"
+go "github.com/air-verse/air"
 go "cmd/go"
 go "github.com/fe3dback/go-arch-lint"
 go "cmd/gofmt"
+go "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"
+go "github.com/pressly/goose/v3/cmd/goose"
+go "golang.org/x/vuln/cmd/govulncheck"
+go "github.com/residwi/hexgen/cmd/hexgen"
+go "github.com/riverqueue/river/cmd/river"
+uv "graphifyy[sql]"
 npm "corepack"
