@@ -1,5 +1,5 @@
-# dcg config — verified key-by-key against dcg 0.14.0 source
-# (github.com/Dicklesworthstone/destructive_command_guard @ v0.14.0).
+# dcg config — verified key-by-key against dcg 0.15.3 source
+# (github.com/Dicklesworthstone/destructive_command_guard @ v0.15.3).
 # Every section below has a confirmed production consumer.
 
 [general]
@@ -23,16 +23,19 @@ disabled = []
 # Unset = severity defaults: critical/high deny, medium warn, low log.
 
 [policy.rules]
-# Per-rule mode: "deny" | "warn" | "log" | "allow".
-# Do NOT use "ask" — it still hard-blocks in Claude Code on 0.14.0.
+# Per-rule mode: "deny" | "ask" | "warn" | "log" (PolicyMode, src/config.rs).
+# "ask" prompts in Claude Code since 0.15 (hook emits permissionDecision "ask").
 # "core.git:stash-drop" = "warn"
+# Non-forced `git branch -d` (git refuses unmerged branches): prompt instead of
+# deny. -D / --delete --force stay on core.git:branch-force-delete = deny.
+"core.git:branch-delete" = "ask"
 
 #──────────────────────────────────────────────────────────────
 # TARGETED EXCEPTIONS
 # Every pattern is ^...$ anchored.
 #
 # On a compound command dcg splits on && / ; / | and requires EVERY segment
-# to be independently allowed (check_allow, src/config.rs:3700, issue #340).
+# to be independently allowed (check_allow, src/config.rs:3880, issue #340).
 # So a whole-string `cd x && rm y` pattern is never consulted — the `cd`
 # needs its own entry below, and each destructive segment still has to earn
 # its own match. One safe segment can never vouch for a destructive one.
@@ -93,11 +96,11 @@ auto_prune_expired = false
 enabled = false
 
 #──────────────────────────────────────────────────────────────
-# DO NOT ADD [git_awareness] — dead config in 0.14.0.
-# apply_branch_strictness() (src/evaluator.rs:24978) has no production
-# caller; every call site is inside #[cfg(test)] (line 25061 onward).
+# DO NOT ADD [git_awareness] — dead config in 0.15.3.
+# apply_branch_strictness() (src/evaluator.rs:31975) has no production
+# caller; every call site is inside #[cfg(test)] (line 32058 onward).
 # The section parses, `dcg config` reports the file fully loaded with
-# zero warnings, and nothing changes. Verified empirically: a HIGH rule
+# zero warnings, and nothing changes. Verified empirically on 0.14.0: a HIGH rule
 # (core.git:checkout-discard) denies identically on main and on
 # feature/x under relaxed_strictness = "critical".
 #──────────────────────────────────────────────────────────────
