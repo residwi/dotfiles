@@ -4,6 +4,7 @@ tmux
 ghostty
 
 # Core dev
+git
 neovim
 ripgrep
 fd-find

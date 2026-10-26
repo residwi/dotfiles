@@ -1,6 +1,4 @@
 tap "dicklesworthstone/tap"
-tap "homebrew/cask"
-tap "homebrew/core"
 # Memory upgrade for your coding agent
 brew "beads"
 # Terminal-based UI for the Beads issue tracker
@@ -27,6 +25,8 @@ brew "fzf"
 brew "zstd"
 # GitHub command-line tool
 brew "gh"
+# Distributed revision control system
+brew "git"
 # A syntax-highlighting pager for git, diff, grep, rg --json, and blame output
 brew "git-delta"
 # GNU Privacy Guard (OpenPGP)
