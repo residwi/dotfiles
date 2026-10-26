@@ -16,3 +16,6 @@ air = "latest"
 "aqua:pressly/goose" = "latest"
 "aqua:fe3dback/go-arch-lint" = "latest"
 "go:github.com/riverqueue/river/cmd/river" = "latest"
+
+# aqua release, sha256-verified by mise on macOS and Fedora
+lazydocker = "latest"

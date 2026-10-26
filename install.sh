@@ -282,9 +282,6 @@ setup_docker() {
     sudo chmod g+rwx "$HOME/.docker" -R
   fi
 
-  log_info "Installing lazydocker..."
-  curl -s https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
-
   log_success "Docker configured (re-login or run 'newgrp docker' to use without sudo)"
 }
 
