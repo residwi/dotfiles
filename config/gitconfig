@@ -50,10 +50,14 @@
 [fetch]
   prune = true             # Prune deleted branches on fetch
   pruneTags = true         # Prune tags that no longer exist on the remote
+  followRemoteHEAD = always # Keep origin/HEAD in sync with the remote default branch (git 2.56+)
 
 [rebase]
   autoStash = true         # Automatically stash local changes before rebasing
   autoSquash = true        # Automatically fixup/squash commits during rebase
+
+[stash]
+  index = true             # stash pop/apply also restore what was staged (git 2.52+)
 
 [column]
   ui = auto                # Output in columns when possible
