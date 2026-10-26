@@ -11,5 +11,14 @@ tools() {
   docker compose -f "${DEVELOPMENT_TOOLS_PATH}/compose.yaml" "$@"
 }
 
+# Export a .env file into the current shell; a function, since a script cannot change its parent's env
+envup() {
+  local file="${1:-.env}"
+  [[ -f "$file" ]] || { echo "No $file file found" >&2; return 1; }
+  set -a
+  source "$file"
+  set +a
+}
+
 # Work
 alias prepare-work-env='~/Work/prepare-work-env'
