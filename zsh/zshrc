@@ -3,11 +3,11 @@
 
 export DOTFILES_BASE="$HOME/dotfiles"
 
-source "$DOTFILES_BASE/zsh/oh-my-zsh"
-
-# Load core configs
+# Load core configs before oh-my-zsh, so its mise plugin puts mise tools first in PATH
 [[ -r "$DOTFILES_BASE/zsh/env.sh" ]] && source "$DOTFILES_BASE/zsh/env.sh"
 [[ -r "$DOTFILES_BASE/zsh/path.sh" ]] && source "$DOTFILES_BASE/zsh/path.sh"
+
+source "$DOTFILES_BASE/zsh/oh-my-zsh"
 
 # Load tool configs
 for config in "$DOTFILES_BASE/zsh/tools"/*.sh(N); do

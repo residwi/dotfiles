@@ -73,11 +73,11 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  mise
   fzf
   docker-compose
   gcloud
   kubectl
+  mise # after plugins that add to PATH, so mise tools come first
   zsh-syntax-highlighting
   zsh-autosuggestions
 )
