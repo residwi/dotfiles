@@ -20,6 +20,7 @@ air = "latest"
 
 # aqua release, sha256-verified by mise on macOS and Fedora
 lazydocker = "latest"
+lazygit = "latest"
 
 # Node 25+ no longer bundles corepack; mise installs npm: tools in their own dir, not the Node version's
 "npm:corepack" = "latest"
