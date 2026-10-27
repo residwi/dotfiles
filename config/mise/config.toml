@@ -6,7 +6,8 @@ go.set_gobin = false
 [tools]
 node = "lts"
 python = "latest"
-ruby = { version = "latest", postinstall = "gem install rubocop ruby-lsp" }
+# Gems needed by ~/.rubocop.yml. `standard` pins rubocop and rubocop-performance, so don't install those directly.
+ruby = { version = "latest", postinstall = "gem install standard ruby-lsp rubocop-rspec rubocop-capybara rubocop-factory_bot rubocop-rake rubocop-thread_safety rubocop-minitest" }
 go = "latest"
 rust = "latest"
 bun = "latest"
